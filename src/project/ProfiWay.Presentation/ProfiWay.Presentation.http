@@ -1,0 +1,6 @@
+@ProfiWay.Presentation_HostAddress = http://localhost:5212
+
+GET {{ProfiWay.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
