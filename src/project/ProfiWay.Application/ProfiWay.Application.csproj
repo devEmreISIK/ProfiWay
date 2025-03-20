@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\cores\Core.Persistance\Core.Persistance.csproj" />
+    <ProjectReference Include="..\ProfiWay.Domain\ProfiWay.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
