@@ -1,3 +1,5 @@
+using ProfiWay.Application;
+using ProfiWay.Application.Services.JwtServices;
 using ProfiWay.Persistance;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistanceServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+builder.Services.Configure<CustomTokenOptions>(builder.Configuration.GetSection("TokenOptions"));
 
 var app = builder.Build();
 
