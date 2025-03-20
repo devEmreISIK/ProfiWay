@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.6.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
   </ItemGroup>
@@ -15,6 +16,16 @@
   <ItemGroup>
     <ProjectReference Include="..\..\cores\Core.Persistance\Core.Persistance.csproj" />
     <ProjectReference Include="..\ProfiWay.Domain\ProfiWay.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Authentication\" />
+    <Folder Include="Features\Cities\" />
+    <Folder Include="Features\Companies\Queries\" />
+    <Folder Include="Features\Competences\" />
+    <Folder Include="Features\JobPostings\" />
+    <Folder Include="Features\Applications\" />
+    <Folder Include="Features\Resumes\" />
   </ItemGroup>
 
 </Project>

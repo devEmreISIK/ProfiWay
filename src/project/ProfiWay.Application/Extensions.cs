@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ProfiWay.Application.Services.JwtServices;
+using ProfiWay.Application.Services.RedisServices;
 using System.Reflection;
 
 namespace ProfiWay.Application;
@@ -10,7 +11,14 @@ public static class Extensions
     {
         services.AddScoped<IJwtService, JwtService>();
 
+        services.AddScoped<IRedisService, RedisCacheService>();
+
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+        services.AddMediatR(opt =>
+        {
+            opt.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+        });
 
         return services;
     }
