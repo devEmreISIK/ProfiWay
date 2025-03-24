@@ -9,9 +9,9 @@ public static class Extensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<IJwtService, JwtService>();
-
         services.AddScoped<IRedisService, RedisCacheService>();
+
+        services.AddScoped<IJwtService, JwtService>();
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 

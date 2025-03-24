@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\cores\Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj" />
     <ProjectReference Include="..\..\cores\Core.Persistance\Core.Persistance.csproj" />
     <ProjectReference Include="..\ProfiWay.Domain\ProfiWay.Domain.csproj" />
   </ItemGroup>
@@ -21,7 +22,6 @@
   <ItemGroup>
     <Folder Include="Features\Authentication\" />
     <Folder Include="Features\Cities\" />
-    <Folder Include="Features\Companies\Queries\" />
     <Folder Include="Features\Competences\" />
     <Folder Include="Features\JobPostings\" />
     <Folder Include="Features\Applications\" />

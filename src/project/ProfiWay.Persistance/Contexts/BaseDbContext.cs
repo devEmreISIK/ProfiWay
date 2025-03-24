@@ -17,7 +17,7 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
     public DbSet<User> Users { get; set; } 
     public DbSet<Company> Companies { get; set; }
     public DbSet<JobPosting> JobPostings { get; set; }
-    public DbSet<Application> Applications { get; set; }
+    public DbSet<ProfiWay.Domain.Entities.Application> Applications { get; set; }
     public DbSet<Resume> Resumes { get; set; }
     public DbSet<Competence> Competences { get; set; }
     public DbSet<ResumeCompetence> ResumeCompetences { get; set; }
@@ -31,7 +31,7 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
 
-        // Company - User (Firma yetkilisi)
+        //Company - User (Firma yetkilisi)
         builder.Entity<Company>()
             .HasOne(c => c.User)
             .WithOne(u => u.Company)
@@ -89,7 +89,7 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
             .OnDelete(DeleteBehavior.Restrict);
 
         // ApplicationStatus enum'unu integer olarak sakla
-        builder.Entity<Application>()
+        builder.Entity<ProfiWay.Domain.Entities.Application>()
             .Property(a => a.Status)
             .HasConversion<int>();
     }

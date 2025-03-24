@@ -1,6 +1,7 @@
 ﻿
 
 using AutoMapper;
+using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
@@ -28,9 +29,26 @@ public class CompanyUpdateCommand : IRequest<Company>
             _redisService = redisService;
         }
 
-        public Task<Company> Handle(CompanyUpdateCommand request, CancellationToken cancellationToken)
+        public async Task<Company> Handle(CompanyUpdateCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException(); // Buradan devam edilecek.
+            Company cmp = _mapper.Map<Company>(request);
+            Company? company = await _companyRepository.GetAsync(x=> x.Id == cmp.Id, cancellationToken: cancellationToken);
+
+            if (company is null)
+            {
+                throw new NotFoundException("Company not found.");
+            }
+
+            company.Name = cmp.Name ?? company.Name;
+            company.Industry = cmp.Industry ?? company.Industry;
+            company.Description = cmp.Description ?? company.Description;
+
+            await _companyRepository.UpdateAsync(company, cancellationToken);
+
+            await _redisService.RemoveDataAsync("companies");
+
+            return company;
+
         }
     }
 }
