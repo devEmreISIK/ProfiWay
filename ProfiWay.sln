@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{01FF5DE6-0391-4FB3-BCC4-5396750C178D}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfiWay.Presentation", "src\project\ProfiWay.Presentation\ProfiWay.Presentation.csproj", "{0C468E49-3E12-4EEA-B406-16DD62DD2FBA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Persistance", "src\cores\Core.Persistance\Core.Persistance.csproj", "{ACAAC9B4-E9F0-4695-BEEF-4D054046763F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.CrossCuttingConcerns", "src\cores\Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj", "{3A2A8DA0-AC22-4204-8F6D-D1E9A477A5B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{ACAAC9B4-E9F0-4695-BEEF-4D054046763F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACAAC9B4-E9F0-4695-BEEF-4D054046763F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACAAC9B4-E9F0-4695-BEEF-4D054046763F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A2A8DA0-AC22-4204-8F6D-D1E9A477A5B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A2A8DA0-AC22-4204-8F6D-D1E9A477A5B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A2A8DA0-AC22-4204-8F6D-D1E9A477A5B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A2A8DA0-AC22-4204-8F6D-D1E9A477A5B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,5 +63,6 @@ Global
 		{03D5DF71-D05D-4A4C-86B9-73F34FF09F5A} = {BB25376D-F15A-47DA-BCB7-E2E45B2316F9}
 		{0C468E49-3E12-4EEA-B406-16DD62DD2FBA} = {BB25376D-F15A-47DA-BCB7-E2E45B2316F9}
 		{ACAAC9B4-E9F0-4695-BEEF-4D054046763F} = {C5B33029-03BD-4555-BA5A-73A4CFA3894E}
+		{3A2A8DA0-AC22-4204-8F6D-D1E9A477A5B5} = {C5B33029-03BD-4555-BA5A-73A4CFA3894E}
 	EndGlobalSection
 EndGlobal

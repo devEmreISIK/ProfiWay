@@ -25,6 +25,8 @@
     <Folder Include="Features\Competences\" />
     <Folder Include="Features\JobPostings\" />
     <Folder Include="Features\Applications\" />
+    <Folder Include="Features\UserRoles\" />
+    <Folder Include="Features\Roles\" />
     <Folder Include="Features\Resumes\" />
   </ItemGroup>
 
