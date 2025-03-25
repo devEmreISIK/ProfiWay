@@ -18,7 +18,7 @@ namespace ProfiWay.Presentation.Controllers
             return Ok(response);
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginCommand command)
         {
             var response = await mediator.Send(command);

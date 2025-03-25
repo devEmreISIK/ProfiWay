@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProfiWay.Application.Features.Companies.Commands.Create;
 using ProfiWay.Application.Features.Companies.Commands.Delete;
+using ProfiWay.Application.Features.Companies.Commands.Update;
+using ProfiWay.Application.Features.Companies.Queries.GetById;
+using ProfiWay.Application.Features.Companies.Queries.GetList;
 
 namespace ProfiWay.Presentation.Controllers
 {
@@ -17,10 +20,36 @@ namespace ProfiWay.Presentation.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("Delete")]
+        [HttpPut("update")]
+        public async Task<IActionResult> Update(CompanyUpdateCommand command)
+        {
+            var result = await mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete(CompanyDeleteCommand command)
         {
             string result = await mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetAll()
+        {
+            GetListCompanyQuery query = new();
+
+            var result = await mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            GetByIdCompanyQuery query = new() { Id = id };
+            var result = await mediator.Send(query);
+
             return Ok(result);
         }
     }
