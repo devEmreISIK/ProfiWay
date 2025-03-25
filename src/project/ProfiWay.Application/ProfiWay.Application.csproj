@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Competences\" />
     <Folder Include="Features\JobPostings\" />
     <Folder Include="Features\Applications\" />
     <Folder Include="Features\UserRoles\" />
