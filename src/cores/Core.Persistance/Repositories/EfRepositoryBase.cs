@@ -171,4 +171,16 @@ public abstract class EfRepositoryBase<TEntity, TId, TContext> : IRepository<TEn
 
         return entity;
     }
+
+    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        foreach (var entity in entities)
+        {
+            entity.CreatedTime = DateTime.UtcNow;
+        }
+
+        await Context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
+
+        await Context.SaveChangesAsync();
+    }
 }
