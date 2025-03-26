@@ -49,6 +49,7 @@ public class ResumeUpdateCommand : IRequest<Resume>
             resume.Experience = request.Experience ?? resume.Experience;
             resume.Education = request.Education ?? resume.Education;
             resume.CvFilePath = request.CvFilePath ?? resume.CvFilePath;
+            resume.UpdateTime = DateTime.UtcNow;
 
             var competences = await _competenceRepository.GetAllAsync(x => request.CompetenceIds.Contains(x.Id));
 
