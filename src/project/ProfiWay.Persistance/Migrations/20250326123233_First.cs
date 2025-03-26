@@ -273,22 +273,21 @@ namespace ProfiWay.Persistance.Migrations
                 name: "ResumeCompetences",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     ResumeId = table.Column<int>(type: "int", nullable: false),
                     CompetenceId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ResumeCompetences", x => x.Id);
+                    table.PrimaryKey("PK_ResumeCompetences", x => new { x.ResumeId, x.CompetenceId });
                     table.ForeignKey(
                         name: "FK_ResumeCompetences_Competences_CompetenceId",
                         column: x => x.CompetenceId,
                         principalTable: "Competences",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ResumeCompetences_Resumes_ResumeId",
                         column: x => x.ResumeId,
@@ -330,22 +329,21 @@ namespace ProfiWay.Persistance.Migrations
                 name: "JobPostingCompetences",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     JobPostingId = table.Column<int>(type: "int", nullable: false),
                     CompetenceId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_JobPostingCompetences", x => x.Id);
+                    table.PrimaryKey("PK_JobPostingCompetences", x => new { x.JobPostingId, x.CompetenceId });
                     table.ForeignKey(
                         name: "FK_JobPostingCompetences_Competences_CompetenceId",
                         column: x => x.CompetenceId,
                         principalTable: "Competences",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_JobPostingCompetences_JobPostings_JobPostingId",
                         column: x => x.JobPostingId,
@@ -415,11 +413,6 @@ namespace ProfiWay.Persistance.Migrations
                 column: "CompetenceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JobPostingCompetences_JobPostingId",
-                table: "JobPostingCompetences",
-                column: "JobPostingId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_JobPostings_CityId",
                 table: "JobPostings",
                 column: "CityId");
@@ -433,11 +426,6 @@ namespace ProfiWay.Persistance.Migrations
                 name: "IX_ResumeCompetences_CompetenceId",
                 table: "ResumeCompetences",
                 column: "CompetenceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ResumeCompetences_ResumeId",
-                table: "ResumeCompetences",
-                column: "ResumeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Resumes_UserId",

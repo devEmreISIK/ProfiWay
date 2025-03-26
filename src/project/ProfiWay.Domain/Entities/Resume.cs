@@ -1,4 +1,5 @@
 ﻿using Core.Persistance.Entities;
+using System.Text.Json.Serialization;
 
 namespace ProfiWay.Domain.Entities;
 
@@ -9,10 +10,10 @@ public class Resume : Entity<int>
     public string Experience { get; set; }
     public string Education { get; set; }
     public string? CvFilePath { get; set; }
-
     public string UserId { get; set; }
     public User User { get; set; }
 
     public List<ResumeCompetence> ResumeCompetences { get; set; } = new();
+
 }
 

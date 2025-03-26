@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProfiWay.Domain.Entities;
+using ProfiWay.Persistance.Configurations;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -29,6 +30,7 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
 
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.ApplyConfiguration(new ResumeConfiguration());
 
 
         //Company - User (Firma yetkilisi)
@@ -59,7 +61,7 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
             .HasForeignKey(a => a.JobPostingId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Resume - ResumeCompetence (Many-to-Many)
+        /*  // Resume - ResumeCompetence (Many-to-Many)
         builder.Entity<ResumeCompetence>()
             .HasOne(rc => rc.Resume)
             .WithMany(r => r.ResumeCompetences)
@@ -68,9 +70,27 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
         builder.Entity<ResumeCompetence>()
             .HasOne(rc => rc.Competence)
             .WithMany()
-            .HasForeignKey(rc => rc.CompetenceId);
+            .HasForeignKey(rc => rc.CompetenceId); */
 
-        // JobPosting - JobPostingCompetence (Many-to-Many)
+        // Resume - ResumeCompetence (Many-to-Many)
+        builder.Entity<ResumeCompetence>()
+            .HasKey(rc => new { rc.ResumeId, rc.CompetenceId }); // Composite Key (Bileşik Anahtar)
+
+        builder.Entity<ResumeCompetence>()
+            .HasOne(rc => rc.Resume)
+            .WithMany(r => r.ResumeCompetences)
+            .HasForeignKey(rc => rc.ResumeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ResumeCompetence>()
+            .HasOne(rc => rc.Competence)
+            .WithMany(c => c.ResumeCompetences)
+            .HasForeignKey(rc => rc.CompetenceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+
+        /* // JobPosting - JobPostingCompetence (Many-to-Many)
         builder.Entity<JobPostingCompetence>()
             .HasOne(jpc => jpc.JobPosting)
             .WithMany(jp => jp.JobPostingCompetences)
@@ -79,7 +99,27 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
         builder.Entity<JobPostingCompetence>()
             .HasOne(jpc => jpc.Competence)
             .WithMany()
-            .HasForeignKey(jpc => jpc.CompetenceId);
+            .HasForeignKey(jpc => jpc.CompetenceId); */
+
+
+
+        // JobPosting - JobPostingCompetence (Many-to-Many)
+        builder.Entity<JobPostingCompetence>()
+            .HasKey(jpc => new { jpc.JobPostingId, jpc.CompetenceId }); // JobPostingCompetence için Composite Key (Bileşik Anahtar)
+
+
+        builder.Entity<JobPostingCompetence>()
+            .HasOne(jpc => jpc.JobPosting)
+            .WithMany(jp => jp.JobPostingCompetences)
+            .HasForeignKey(jpc => jpc.JobPostingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<JobPostingCompetence>()
+            .HasOne(jpc => jpc.Competence)
+            .WithMany(c => c.JobPostingCompetences) // Many-to-Many doğru işlensin diye güncellendi
+            .HasForeignKey(jpc => jpc.CompetenceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 
         // City - JobPosting (Bir şehirde birden fazla ilan olabilir)
         builder.Entity<City>()

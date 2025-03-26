@@ -12,4 +12,5 @@ public sealed class ResumeRepository : EfRepositoryBase<Resume, int, BaseDbConte
     public ResumeRepository(BaseDbContext context) : base(context)
     {
     }
+
 }

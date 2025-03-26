@@ -24,7 +24,6 @@
     <Folder Include="Features\Applications\" />
     <Folder Include="Features\UserRoles\" />
     <Folder Include="Features\Roles\" />
-    <Folder Include="Features\Resumes\" />
   </ItemGroup>
 
 </Project>

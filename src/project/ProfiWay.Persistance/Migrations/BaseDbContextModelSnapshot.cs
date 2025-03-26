@@ -311,11 +311,8 @@ namespace ProfiWay.Persistance.Migrations
 
             modelBuilder.Entity("ProfiWay.Domain.Entities.JobPostingCompetence", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("JobPostingId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CompetenceId")
                         .HasColumnType("int");
@@ -323,17 +320,15 @@ namespace ProfiWay.Persistance.Migrations
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("JobPostingId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("JobPostingId", "CompetenceId");
 
                     b.HasIndex("CompetenceId");
-
-                    b.HasIndex("JobPostingId");
 
                     b.ToTable("JobPostingCompetences");
                 });
@@ -385,11 +380,8 @@ namespace ProfiWay.Persistance.Migrations
 
             modelBuilder.Entity("ProfiWay.Domain.Entities.ResumeCompetence", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("ResumeId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CompetenceId")
                         .HasColumnType("int");
@@ -397,17 +389,15 @@ namespace ProfiWay.Persistance.Migrations
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ResumeId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("ResumeId", "CompetenceId");
 
                     b.HasIndex("CompetenceId");
-
-                    b.HasIndex("ResumeId");
 
                     b.ToTable("ResumeCompetences");
                 });
@@ -590,9 +580,9 @@ namespace ProfiWay.Persistance.Migrations
             modelBuilder.Entity("ProfiWay.Domain.Entities.JobPostingCompetence", b =>
                 {
                     b.HasOne("ProfiWay.Domain.Entities.Competence", "Competence")
-                        .WithMany()
+                        .WithMany("JobPostingCompetences")
                         .HasForeignKey("CompetenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ProfiWay.Domain.Entities.JobPosting", "JobPosting")
@@ -620,9 +610,9 @@ namespace ProfiWay.Persistance.Migrations
             modelBuilder.Entity("ProfiWay.Domain.Entities.ResumeCompetence", b =>
                 {
                     b.HasOne("ProfiWay.Domain.Entities.Competence", "Competence")
-                        .WithMany()
+                        .WithMany("ResumeCompetences")
                         .HasForeignKey("CompetenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ProfiWay.Domain.Entities.Resume", "Resume")
@@ -644,6 +634,13 @@ namespace ProfiWay.Persistance.Migrations
             modelBuilder.Entity("ProfiWay.Domain.Entities.Company", b =>
                 {
                     b.Navigation("JobPostings");
+                });
+
+            modelBuilder.Entity("ProfiWay.Domain.Entities.Competence", b =>
+                {
+                    b.Navigation("JobPostingCompetences");
+
+                    b.Navigation("ResumeCompetences");
                 });
 
             modelBuilder.Entity("ProfiWay.Domain.Entities.JobPosting", b =>
