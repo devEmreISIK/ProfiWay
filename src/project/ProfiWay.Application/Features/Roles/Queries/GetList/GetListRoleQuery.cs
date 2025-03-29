@@ -1,26 +1,31 @@
 ﻿
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace ProfiWay.Application.Features.Roles.Queries.GetList;
 
-public class GetListRoleQuery : IRequest<List<IdentityRole>>
+public class GetListRoleQuery : IRequest<List<GetListRoleResponseDto>>
 {
-    public class GetListRoleQueryHandler : IRequestHandler<GetListRoleQuery, List<IdentityRole>>
+    public class GetListRoleQueryHandler : IRequestHandler<GetListRoleQuery, List<GetListRoleResponseDto>>
     {
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IMapper _mapper;
 
-        public GetListRoleQueryHandler(RoleManager<IdentityRole> roleManager)
+        public GetListRoleQueryHandler(RoleManager<IdentityRole> roleManager, IMapper mapper)
         {
             _roleManager = roleManager;
+            _mapper = mapper;
         }
 
-        public async Task<List<IdentityRole>> Handle(GetListRoleQuery request, CancellationToken cancellationToken)
+        public async Task<List<GetListRoleResponseDto>> Handle(GetListRoleQuery request, CancellationToken cancellationToken)
         {
             var roles = await _roleManager.Roles.ToListAsync();
 
-            return roles;
+            var mappedRoles = _mapper.Map<List<GetListRoleResponseDto>>(roles);
+
+            return mappedRoles;
         }
     }
 }

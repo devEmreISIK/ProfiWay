@@ -19,8 +19,4 @@
     <ProjectReference Include="..\ProfiWay.Domain\ProfiWay.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\UserRoles\" />
-  </ItemGroup>
-
 </Project>
