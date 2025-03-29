@@ -19,14 +19,17 @@ public class GetListJobPostingsQuery : IRequest<List<GetListJobPostingsResponseD
         private readonly IMapper _mapper;
         private readonly ICompetenceRepository _competenceRepository;
         private readonly IRedisService _redisService;
+        private readonly IApplicationRepository _applicationRepository;
 
-        public GetListJobPostingsQueryHandler(IJobPostingRepository jobPostingRepository, IMapper mapper, ICompetenceRepository competenceRepository, IRedisService redisService)
+        public GetListJobPostingsQueryHandler(IJobPostingRepository jobPostingRepository, IMapper mapper, ICompetenceRepository competenceRepository, IRedisService redisService, IApplicationRepository applicationRepository)
         {
             _jobPostingRepository = jobPostingRepository;
             _mapper = mapper;
             _competenceRepository = competenceRepository;
             _redisService = redisService;
+            _applicationRepository = applicationRepository;
         }
+
         public async Task<List<GetListJobPostingsResponseDto>> Handle(GetListJobPostingsQuery request, CancellationToken cancellationToken)
         {
             var cachedData = await _redisService.GetDataAsync<List<GetListJobPostingsResponseDto>>("jobpostings");
@@ -39,6 +42,7 @@ public class GetListJobPostingsQuery : IRequest<List<GetListJobPostingsResponseD
                     enableTracking: false,
                     cancellationToken: cancellationToken
                 );
+
 
             var responses = _mapper.Map<List<GetListJobPostingsResponseDto>>(jobPostings);
 

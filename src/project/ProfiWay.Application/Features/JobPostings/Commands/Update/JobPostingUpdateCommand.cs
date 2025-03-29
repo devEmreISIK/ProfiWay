@@ -16,7 +16,6 @@ public class JobPostingUpdateCommand : IRequest<JobPosting>
     public int CompanyId { get; set; }
     public int CityId { get; set; }
     public List<int> CompetenceIds { get; set; }
-    public List<int> ApplicationIds { get; set; }
 
     public class JobPostingUpdateCommandHandler : IRequestHandler<JobPostingUpdateCommand, JobPosting>
     {

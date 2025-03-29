@@ -138,6 +138,8 @@ public abstract class EfRepositoryBase<TEntity, TId, TContext> : IRepository<TEn
         return await query.ToListAsync(cancellationToken);
     }
 
+
+
     public async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter, bool enableTracking = true, bool include = true, CancellationToken cancellationToken = default)
     {
         IQueryable<TEntity> query = Context.Set<TEntity>();
@@ -183,4 +185,6 @@ public abstract class EfRepositoryBase<TEntity, TId, TContext> : IRepository<TEn
 
         await Context.SaveChangesAsync();
     }
+
+    
 }

@@ -10,6 +10,6 @@ public class GetListJobPostingsResponseDto
     public int CompanyId { get; set; }
     public int CityId { get; set; }
     public List<JobPostingCompetenceDto>? JobPostingCompetences { get; set; }
-    public List<ApplicationsDto>? Applications { get; set; }
+    public List<ApplicationsDto> Applications { get; set; }
 }
 

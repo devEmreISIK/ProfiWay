@@ -17,10 +17,10 @@ public class JobPostingsMapper : Profile
         CreateMap<JobPostingAddCommand, JobPosting>();
         CreateMap<JobPostingUpdateCommand, JobPosting>();
         CreateMap<JobPosting, GetListJobPostingsResponseDto>();
-        CreateMap<JobPosting, GetByIdJobPostingsResponseDto>();
+        CreateMap<JobPosting, GetByIdJobPostingsResponseDto>(); 
         CreateMap<JobPostingCompetence, JobPostingCompetenceDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompetenceId));
         CreateMap<ProfiWay.Domain.Entities.Application, ApplicationsDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.JobPostingId));
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
     }
 }

@@ -32,7 +32,7 @@ public class CompetenceDeleteCommand : IRequest<string>
 
             await _competenceRepository.DeleteAsync(competence, cancellationToken);
 
-            await _redisService.RemoveDataAsync("competence");
+            await _redisService.RemoveDataAsync("competences");
 
             return "Competence deleted";
         }

@@ -30,8 +30,8 @@ public class BaseDbContext : IdentityDbContext<User, IdentityRole, string>
 
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        builder.ApplyConfiguration(new ResumeConfiguration());
-        builder.ApplyConfiguration(new JobPostingConfiguration());
+        //builder.ApplyConfiguration(new ResumeConfiguration());
+        //builder.ApplyConfiguration(new JobPostingConfiguration());
 
         //Company - User (Firma yetkilisi)
         builder.Entity<Company>()
