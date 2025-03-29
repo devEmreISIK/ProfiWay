@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Features\UserRoles\" />
-    <Folder Include="Features\Roles\" />
   </ItemGroup>
 
 </Project>
