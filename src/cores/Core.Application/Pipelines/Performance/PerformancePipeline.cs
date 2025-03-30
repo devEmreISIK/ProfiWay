@@ -26,7 +26,7 @@ public class PerformancePipeline<TRequest, TResponse> : IPipelineBehavior<TReque
 
         if (stopwatch.ElapsedMilliseconds > 500)
         {
-            // Logger
+            _logger.LogWarning($"{request.GetType()} : {stopwatch.ElapsedMilliseconds} ms");
         }
 
         return response;
