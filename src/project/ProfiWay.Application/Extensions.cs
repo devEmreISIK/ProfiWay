@@ -1,4 +1,5 @@
-﻿using Core.Application.Pipelines.Logging;
+﻿using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Logging;
 using Core.Application.Pipelines.Performance;
 using Core.Application.Pipelines.Validation;
 using Core.CrossCuttingConcerns.Logger.Serilog;
@@ -24,6 +25,7 @@ public static class Extensions
         services.AddMediatR(opt =>
         {
             opt.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            opt.AddOpenBehavior(typeof(AuthorizationPipeline<,>));
             opt.AddOpenBehavior(typeof(LoggingPipeline<,>));
             opt.AddOpenBehavior(typeof(PerformancePipeline<,>));
             opt.AddOpenBehavior(typeof(ValidationPipeline<,>));
