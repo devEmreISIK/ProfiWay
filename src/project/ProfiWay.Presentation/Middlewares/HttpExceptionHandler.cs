@@ -44,6 +44,16 @@ public class HttpExceptionHandler : IExceptionHandler
             return false;
         }
 
+        if (exception is FluentValidationException fluentValidation)
+        {
+            httpContext.Response.StatusCode= StatusCodes.Status400BadRequest;
+            ValidationProblemDetails details = new(fluentValidation.Errors);
+            string json = JsonSerializer.Serialize(details);
+
+            await httpContext.Response.WriteAsync(json);
+            return false;
+        }
+
         return true;
     }
 }
