@@ -1,6 +1,7 @@
 ﻿
 
 using AutoMapper;
+using Core.Application.Pipelines.Performance;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
@@ -8,7 +9,7 @@ using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Competences.Queries.GetList;
 
-public class GetListCompetenceQuery : IRequest<List<GetListCompetenceResponseDto>>
+public class GetListCompetenceQuery : IRequest<List<GetListCompetenceResponseDto>>, IPerformanceRequest
 {
     public int Index { get; set; }
     public int Size { get; set; }

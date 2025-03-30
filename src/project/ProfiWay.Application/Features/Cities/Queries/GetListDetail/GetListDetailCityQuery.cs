@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Core.Application.Pipelines.Performance;
 using MediatR;
 using ProfiWay.Application.Features.Cities.Queries.GetList;
 using ProfiWay.Application.Services.RedisServices;
@@ -7,7 +8,7 @@ using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Cities.Queries.GetListDetail;
 
-public class GetListDetailCityQuery : IRequest<List<GetListDetailCityResponseDto>>
+public class GetListDetailCityQuery : IRequest<List<GetListDetailCityResponseDto>>, IPerformanceRequest
 {
     public int Index { get; set; }
     public int Size { get; set; }

@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Core.Application.Pipelines.Performance;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
@@ -12,7 +13,7 @@ public class GetListResumeQuery : IRequest<List<GetListResumeResponseDto>>
     public int Index { get; set; }
     public int Size { get; set; }
 
-    public class GetListResumeQueryHandler : IRequestHandler<GetListResumeQuery, List<GetListResumeResponseDto>>
+    public class GetListResumeQueryHandler : IRequestHandler<GetListResumeQuery, List<GetListResumeResponseDto>>, IPerformanceRequest
     {
         private readonly IResumeRepository _resumeRepository;
         private readonly IMapper _mapper;

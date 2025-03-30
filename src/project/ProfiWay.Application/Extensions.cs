@@ -1,4 +1,5 @@
-﻿using Core.Application.Pipelines.Validation;
+﻿using Core.Application.Pipelines.Performance;
+using Core.Application.Pipelines.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using ProfiWay.Application.Services.JwtServices;
 using ProfiWay.Application.Services.RedisServices;
@@ -19,6 +20,7 @@ public static class Extensions
         services.AddMediatR(opt =>
         {
             opt.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            opt.AddOpenBehavior(typeof(PerformancePipeline<,>));
             opt.AddOpenBehavior(typeof(ValidationPipeline<,>));
         });
 

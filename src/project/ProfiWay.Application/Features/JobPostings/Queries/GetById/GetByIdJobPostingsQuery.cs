@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Core.Application.Pipelines.Performance;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
@@ -8,7 +9,7 @@ using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.JobPostings.Queries.GetById;
 
-public class GetByIdJobPostingsQuery : IRequest<GetByIdJobPostingsResponseDto>
+public class GetByIdJobPostingsQuery : IRequest<GetByIdJobPostingsResponseDto>, IPerformanceRequest
 {
     public int Id { get; set; }
 

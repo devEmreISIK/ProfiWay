@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
+using Core.Application.Pipelines.Performance;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
 
 namespace ProfiWay.Application.Features.Applications.Queries.GetList;
 
-public class GetListApplicationByJobPostingQuery : IRequest<List<GetListApplicationByJobPostingResponseDto>>
+public class GetListApplicationByJobPostingQuery : IRequest<List<GetListApplicationByJobPostingResponseDto>>, IPerformanceRequest
 {
     public int JobPostingId { get; set; }
     public int Index { get; set; }
