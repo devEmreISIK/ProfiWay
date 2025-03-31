@@ -2,7 +2,7 @@
 
 namespace ProfiWay.Application.Features.Cities.Queries.GetListDetail;
 
-public class GetListDetailCityResponseDto
+public class GetByIdDetailCityResponseDto
 {
     public int Id { get; set; }
     public string Name { get; set; }

@@ -1,4 +1,6 @@
-﻿using Core.CrossCuttingConcerns.Exceptions;
+﻿using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Logging;
+using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
@@ -6,9 +8,11 @@ using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Cities.Commands.Create;
 
-public class CityAddCommand : IRequest<List<City>>
+public class CityAddCommand : IRequest<List<City>>, IRoleExists
 {
     public List<string> Names { get; set; }
+
+    public string[] Roles => ["Admin"];
 
     public class CityAddCommandHandler : IRequestHandler<CityAddCommand, List<City>>
     {

@@ -6,6 +6,7 @@ using Core.CrossCuttingConcerns.Logger.Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using ProfiWay.Application.Services.JwtServices;
 using ProfiWay.Application.Services.RedisServices;
+using FluentValidation;
 using System.Reflection;
 
 namespace ProfiWay.Application;
@@ -18,17 +19,23 @@ public static class Extensions
 
         services.AddTransient<LoggerServiceBase, MsSqlLogger>();
 
+        services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()]);
+
         services.AddScoped<IJwtService, JwtService>();
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
+
+
         services.AddMediatR(opt =>
         {
             opt.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            opt.AddOpenBehavior(typeof(AuthorizationPipeline<,>));
-            opt.AddOpenBehavior(typeof(LoggingPipeline<,>));
             opt.AddOpenBehavior(typeof(PerformancePipeline<,>));
+            opt.AddOpenBehavior(typeof(AuthorizationPipeline<,>));
             opt.AddOpenBehavior(typeof(ValidationPipeline<,>));
+            opt.AddOpenBehavior(typeof(LoggingPipeline<,>));
+            
+            
         });
 
         return services;

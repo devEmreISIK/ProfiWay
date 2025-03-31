@@ -20,6 +20,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddPersistanceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.Configure<CustomTokenOptions>(builder.Configuration.GetSection("TokenOptions"));
+//builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCors(options =>
 {
@@ -80,6 +81,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseExceptionHandler(_ => { });
 
 app.MapControllers();
 

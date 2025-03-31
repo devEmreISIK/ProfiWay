@@ -43,7 +43,7 @@ public class GetByIdCityQuery : IRequest<GetByIdCityResponseDto>
 
             var response = _mapper.Map<GetByIdCityResponseDto>(city);
 
-            await _redisService.AddDataAsync($"city_{city.Id}", city);
+            await _redisService.AddDataAsync($"city_{city.Id}", response);
 
             return response;
         }

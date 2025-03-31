@@ -19,6 +19,11 @@ public class AuthorizationPipeline<TRequest, TResponse> : IPipelineBehavior<TReq
     {
         var httpContext = _accessor.HttpContext;
 
+        if (httpContext == null)
+        {
+            throw new AuthorizationException("HTTP context is not available.");
+        }
+
         if (!httpContext.User.Identity.IsAuthenticated)
         {
             throw new AuthorizationException("You didn't login.");
@@ -32,15 +37,15 @@ public class AuthorizationPipeline<TRequest, TResponse> : IPipelineBehavior<TReq
         }
 
         var roles = httpContext.User.Claims
-            .Where(x => x.Type == ClaimTypes.Role)
-            .Select(x => x.Value)
-            .ToList();
+             .Where(x => x.Type == ClaimTypes.Role)
+             .Select(x => x.Value)
+             .ToList();
 
         bool isAuthorized = request.Roles.Any(role => roles.Contains(role));
 
         if (isAuthorized is false)
         {
-            throw new AuthorizationException("You don't have permission.");
+            throw new AuthorizationException("You don't have authority.");
         }
 
         return await next();

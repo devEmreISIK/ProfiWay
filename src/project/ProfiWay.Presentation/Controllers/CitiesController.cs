@@ -43,10 +43,10 @@ namespace ProfiWay.Presentation.Controllers
             return Ok(result);
         }
 
-        [HttpGet("getalldetails")]
-        public async Task<IActionResult> GetAllDetails()
+        [HttpGet("getbyiddetails")]
+        public async Task<IActionResult> GetAllDetails(int id)
         {
-            GetListDetailCityQuery query = new();
+            GetByIdDetailCityQuery query = new() { Id = id };
 
             var result = await mediator.Send(query);
 

@@ -33,6 +33,12 @@ public class LoginCommand : IRequest<AccessTokenDTO>
                 throw new NotFoundException("Email address is not registered.");
             }
 
+            var passwordCheck = await _userManager.CheckPasswordAsync(emailUser, request.Password);
+            if (passwordCheck is false)
+            {
+                throw new BusinessException("Incorrect password.");
+            }
+
             AccessTokenDTO token = await _jwtService.CreateTokenAsync(emailUser);
 
             return token;

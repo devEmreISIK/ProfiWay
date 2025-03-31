@@ -14,7 +14,8 @@ public class CitiesMapper : Profile
     {
         CreateMap<CityUpdateCommand, City>();
         CreateMap<City, GetListCityResponseDto>();
-        CreateMap<City, GetListDetailCityResponseDto>();
+        CreateMap<City, GetByIdDetailCityResponseDto>()
+            .ForMember(dest => dest.JobPostings, opt => opt.MapFrom(src => src.JobPostings));
         CreateMap<City, GetByIdCityResponseDto>();
     }
 }
