@@ -22,6 +22,8 @@ builder.Services.AddApplicationServices();
 builder.Services.Configure<CustomTokenOptions>(builder.Configuration.GetSection("TokenOptions"));
 //builder.Services.AddHttpContextAccessor();
 
+string ReactCors = "ReactCors";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -29,6 +31,13 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod()
         .AllowAnyHeader()
         );
+
+    options.AddPolicy(ReactCors, policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 builder.Services.AddExceptionHandler<HttpExceptionHandler>();
@@ -77,6 +86,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(ReactCors);
 
 app.UseAuthentication();
 

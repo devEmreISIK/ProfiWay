@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';  // AuthContext'i kullan
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -7,26 +8,16 @@ function LoginPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const { login } = useAuth();  // login fonksiyonunu al
+
   const handleLogin = async () => {
     setError('');
     try {
-      const response = await fetch('https://localhost:7198/api/Auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
-      }
-      
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      navigate('/dashboard');
+      // AuthContext'teki login fonksiyonunu kullanıyoruz
+      await login(email, password);
+      navigate('/dashboard');  // Başarılı giriş sonrası dashboard sayfasına yönlendiriyoruz
     } catch (err) {
-      setError(err.message);
+      setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
     }
   };
 
