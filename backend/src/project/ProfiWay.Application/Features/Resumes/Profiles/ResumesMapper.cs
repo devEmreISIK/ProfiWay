@@ -19,6 +19,7 @@ public class ResumesMapper : Profile
         CreateMap<Resume, GetListResumeResponseDto>();
         CreateMap<Resume, GetByIdResumeResponseDto>();
         CreateMap<ResumeCompetence, ResumeCompetenceDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompetenceId));
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompetenceId))
+            .ForMember(dest => dest.CompetenceName, opt => opt.MapFrom(src => src.CompetenceName));
     }
 }

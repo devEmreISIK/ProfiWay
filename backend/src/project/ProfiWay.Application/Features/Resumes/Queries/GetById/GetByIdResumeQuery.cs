@@ -11,7 +11,7 @@ namespace ProfiWay.Application.Features.Resumes.Queries.GetById;
 
 public class GetByIdResumeQuery : IRequest<GetByIdResumeResponseDto>
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     public class GetByIdResumeQueryHandler : IRequestHandler<GetByIdResumeQuery, GetByIdResumeResponseDto>
     {
@@ -34,7 +34,7 @@ public class GetByIdResumeQuery : IRequest<GetByIdResumeResponseDto>
             }
 
             Resume? resume = await _resumeRepository.GetAsync(
-                x => x.Id == request.Id,
+                x => x.UserId == request.Id,
                 enableTracking: false,
                 cancellationToken: cancellationToken
             );

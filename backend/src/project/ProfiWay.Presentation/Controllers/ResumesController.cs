@@ -43,7 +43,7 @@ namespace ProfiWay.Presentation.Controllers
         }
 
         [HttpGet("getbyid")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(string id)
         {
             GetByIdResumeQuery query = new() { Id = id };
             var result = await mediator.Send(query);

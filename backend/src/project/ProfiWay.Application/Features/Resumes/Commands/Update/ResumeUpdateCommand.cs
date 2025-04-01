@@ -44,6 +44,9 @@ public class ResumeUpdateCommand : IRequest<Resume>
                 throw new NotFoundException("Resume not found!");
             }
 
+            //resume.ResumeCompetences.RemoveAll(x => x.ResumeId == request.Id);
+
+            resume.Id = request.Id;
             resume.Title = request.Title ?? resume.Title;
             resume.Summary = request.Summary ?? resume.Summary;
             resume.Experience = request.Experience ?? resume.Experience;
@@ -64,6 +67,7 @@ public class ResumeUpdateCommand : IRequest<Resume>
             {
                 ResumeId = resume.Id,
                 CompetenceId = x.Id,
+                CompetenceName = x.Name
             }).ToList();
 
             await _resumeRepository.UpdateAsync(resume, cancellationToken);
