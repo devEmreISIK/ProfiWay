@@ -11,7 +11,7 @@ namespace ProfiWay.Application.Features.Companies.Queries.GetById;
 
 public class GetByIdCompanyQuery : IRequest<GetByIdCompanyResponseDto>
 {
-    public int Id { get; set; }
+    public string UserId { get; set; }
 
     public class GetByIdCompanyQueryHandler : IRequestHandler<GetByIdCompanyQuery, GetByIdCompanyResponseDto>
     {
@@ -28,13 +28,13 @@ public class GetByIdCompanyQuery : IRequest<GetByIdCompanyResponseDto>
 
         public async Task<GetByIdCompanyResponseDto> Handle(GetByIdCompanyQuery request, CancellationToken cancellationToken)
         {
-            var cachedData = await _redisService.GetDataAsync<GetByIdCompanyResponseDto>($"company_{request.Id}");
+            var cachedData = await _redisService.GetDataAsync<GetByIdCompanyResponseDto>($"company_{request.UserId}");
             if (cachedData != null)
             {
                 return cachedData;
             }
 
-            Company? company = await _companyRepository.GetAsync(x=> x.Id == request.Id, enableTracking:false, cancellationToken: cancellationToken);
+            Company? company = await _companyRepository.GetAsync(x=> x.UserId == request.UserId, enableTracking:false, cancellationToken: cancellationToken);
 
             if (company is null)
             {
@@ -43,7 +43,7 @@ public class GetByIdCompanyQuery : IRequest<GetByIdCompanyResponseDto>
 
             var response = _mapper.Map<GetByIdCompanyResponseDto>(company);
 
-            await _redisService.AddDataAsync($"company_{company.Id}", company);
+            await _redisService.AddDataAsync($"company_{company.UserId}", company);
 
             return response;
         }

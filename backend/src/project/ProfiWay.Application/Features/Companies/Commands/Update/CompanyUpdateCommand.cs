@@ -46,6 +46,7 @@ public class CompanyUpdateCommand : IRequest<Company>
             await _companyRepository.UpdateAsync(company, cancellationToken);
 
             await _redisService.RemoveDataAsync("companies");
+            await _redisService.RemoveDataAsync($"company_{company.UserId}");
 
             return company;
 
