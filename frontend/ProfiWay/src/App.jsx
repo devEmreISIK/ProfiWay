@@ -6,6 +6,7 @@ import RegisterPage from './pages/register_page';
 import Dashboard from './pages/dashboard_page';
 import { AuthProvider } from './context/AuthContext';
 import JobListings from './pages/job_listing_page';
+import JobPostingForm from './pages/job_add_page';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path='/register' element={<RegisterPage/>}/>
           <Route path='/dashboard' element={<Dashboard/>}/>
           <Route path='/joblistings' element={<JobListings/>}/>
+          <Route path='/addjobposting' element={<JobPostingForm/>}/>
         </Routes>
      </Router>
     </AuthProvider>

@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Select from "react-select";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField } from "@mui/material";
+import { getUserInfo, updateUserInfo } from "../services/UserService";
+import { addCompanyInfo, getCompanyInfo, updateCompanyInfo } from "../services/CompanyService";
+import { getJobPostingInfo } from "../services/JobPostingService";
+import { getAllCompetences } from "../services/CompetenceService";
+import { addResume, getResumeInfo, updateResume } from "../services/ResumeService";
+import { InfoItem } from "../components/InfoItem";
+import FormDialog from "../components/FormDialog";
 
 
 export default function Dashboard() {
   const { user } = useAuth();
+
   const [userInfoData, setUserInfoData] = useState({
     fullName: "",
     userName: "",
     email: "",
     phoneNumber: "",
-    createdTime: ""
+    createdTime: "",
   });
+
   const [cvFormData, setCvFormData] = useState({
     title: "",
     summary: "",
@@ -26,24 +33,21 @@ export default function Dashboard() {
 
   const [competences, setCompetences] = useState([]);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [selectedCompetences, setSelectedCompetences] = useState([]); // Seçilen yetkinlikler
+  const [selectedCompetences, setSelectedCompetences] = useState([]);
   const [resume, setResume] = useState(null);
   const [info, setInfo] = useState(null);
-  
+
   const navigate = useNavigate();
 
-  const [jobPostings, setJobPostings] = useState([]);
+  const [jobPostingsData, setJobPostingsData] = useState([]);
+
   const [companyInfoData, setCompanyInfoData] = useState({
-     name: "", 
-     industry: "",
-     description: "" 
-    });
+    name: "",
+    industry: "",
+    description: "",
+  });
+
   const [isCompModalOpen, setIsCompModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const [companyInfo, setCompanyInfo] = useState(null);
-
-
 
   useEffect(() => {
     if (!user) {
@@ -51,97 +55,65 @@ export default function Dashboard() {
       return;
     }
 
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/Users/getbyid?id=${user.id}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
-      .then((response) => {
-        if (response.data) {
-          // Response boş değilse
-          setUserInfoData({
-            fullName: response.data.fullName || "",
-            email: response.data.email || "",
-            userName: response.data.userName || "",
-            phoneNumber: response.data.phoneNumber || "",
-            createdTime : response.data.createdTime || ""
-          });
-          console.log(userInfoData);
-        }
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 404) {
-          console.warn("Kullanıcı bilgileri bulunamadı.");
-        } else {
-          console.error("Bir hata oluştu:", error);
-        }
-      });
-
-      // COMPANIES GET BY ID
-      if (!user || !(user.isJobSeeker)) {
-
-        axios.get(`${import.meta.env.VITE_API_URL}/api/JobPostings/getbyuserid?id=${user.id}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then(response => setJobPostings(response.data))
-        .catch(err => console.error("İş ilanları çekilirken hata oluştu:", err));
-
-
-        axios.get(`${import.meta.env.VITE_API_URL}/api/Companies/getbyid?id=${user.id}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then((response) => {
-          setCompanyInfoData({
-            companyId: response.data.id,
-            name: response.data.name,
-            industry: response.data.industry,
-            description: response.data.description
-          });
-        })
-        .catch(err => console.error("Firma bilgileri çekilirken hata oluştu:", err));
+    // FETCH USER INFO
+    async function fetchUserInfo() {
+      if (user) {
+        const data = await getUserInfo(user);
+        setUserInfoData(data);
       }
+    }
+    fetchUserInfo();
 
-    axios
-      .get(
-        `${import.meta.env.VITE_API_URL}/api/Resumes/getbyid?id=${user.id}`,
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      )
-      .then((response) => {
-        console.log("API Yanıtı:", response.data);
-        if (response.data && response.data.id) {
-          setResume(response.data); //setResume(response.data[0]);
-          
-          setCvFormData({
-            resumeId: response.data.id,
-            title: response.data.title || "",
-            summary: response.data.summary || "",
-            experience: response.data.experience || "",
-            education: response.data.education || "",
-            cvFile: null,
-            competences: response.data.resumeCompetences || [],
-          });
+    if (!user || !user.isJobSeeker) {
+      // FETCH COMPANY INFO
+      async function fetchCompanyInfo() {
+        const data = await getCompanyInfo(user);
+        setCompanyInfoData(data);
+      }
+      fetchCompanyInfo();
 
-          setSelectedCompetences(response.data.resumeCompetences.map((comp) => ({
+      // FETCH JOBPOSTING INFO
+      async function fetchJobPostingsInfo() {
+        const data = await getJobPostingInfo(user);
+        setJobPostingsData(data);
+        console.log(jobPostingsData);
+      }
+      fetchJobPostingsInfo();
+    }
+
+    // FETCH RESUME INFO
+    async function fetchResumeInfo() {
+      const data = await getResumeInfo(user);
+      if (user) {
+        setResume(data);
+        setCvFormData({
+          resumeId: data.id,
+          title: data.title || "",
+          summary: data.summary || "",
+          experience: data.experience || "",
+          education: data.education || "",
+          cvFile: null,
+          competences: data.resumeCompetences || [],
+        });
+
+        setSelectedCompetences(
+          data.resumeCompetences.map((comp) => ({
             value: comp.id,
-            label: comp.name
-          })));
-        }
-        
-      })
-      .catch((err) => console.error(err));
-      
+            label: comp.name,
+          }))
+        );
+      } else {
+        console.warn("Özgeçmiş verisi bulunamadı.");
+      }
+    }
+    fetchResumeInfo();
 
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/api/Competences/getall`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
-      .then((response) => {
-        setCompetences(response.data.map(comp => ({
-          value: comp.id,
-          label: comp.name
-        })));
-        console.log("Competences:", competences);
-      })
-      .catch((err) => console.error(err));
+    // GETALL COMPETENCES
+    async function getAllCompetencesInfo() {
+      const data = await getAllCompetences(user);
+      setCompetences(data);
+    }
+    getAllCompetencesInfo();
   }, [user, navigate]);
 
   const handleChange = (e) => {
@@ -155,209 +127,95 @@ export default function Dashboard() {
     setUserInfoData({
       ...userInfoData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleFileChange = (e) => {
     setCvFormData({
       ...cvFormData,
       cvFile: e.target.files[0],
     });
-  }
+  };
 
   const handleCompanyInfoChange = (e) => {
     setCompanyInfoData({
       ...companyInfoData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   // Yetkinlik seçim işlemi
   const handleCompetenceChange = (selectedOptions) => {
     setSelectedCompetences(selectedOptions);
   };
 
-  const handleUserInfoSubmit = (e) => {
+  // USER INFO UPDATE BUTTON HANDLER
+  const handleUserInfoSubmit = async (e) => {
     e.preventDefault();
-
-    const jsonDataUserInfo = {
-      Id: user.id,
-      FullName: userInfoData.fullName,
-      UserName: userInfoData.userName,
-      Email: userInfoData.email,
-      PhoneNumber: userInfoData.phoneNumber
+    try {
+      const updatedUser = await updateUserInfo(user, userInfoData);
+      setInfo(updatedUser.data);
+      setIsUserModalOpen(false);
+      console.log("Güncelleme başarılı:", updatedUser);
+      alert("User Info başarıyla güncellendi");
+    } catch (error) {
+      console.error("User güncelleme hatası:", error);
     }
+  };
 
-    
-    axios
-      .put(
-        `${import.meta.env.VITE_API_URL}/api/Users/update`,
-        jsonDataUserInfo,
-        {
-          headers: { Authorization: `Bearer ${user.token}`, "Content-Type": "application/json" },
-        },
-        console.log("Gönderilen veri:", jsonDataUserInfo)
-      )
-      .then((response) => {
-        console.log("Güncelleme başarılı, API yanıtı:", response);
-        alert("User Info başarıyla güncellendi");
-        setInfo(response.data);
-        setIsUserModalOpen(false)
-      })
-      .catch((err) => {
-        console.error("API Güncelleme Hatası:", err.response ? err.response.data : err.message);
-      });
-    
-  }
-
-  const handleCompInfoSubmit = (e) => {
+  // COMPANY INFO UPDATE/ADD BUTTON HANDLER
+  const handleCompInfoSubmit = async (e) => {
     e.preventDefault();
-
-    const jsonData = {
-      UserId: user.id,
-      Name: companyInfoData.name,
-      Description: companyInfoData.description,
-      Industry: companyInfoData.industry
-    }
-
-    const jsonDataToUpdate = {
-      Id: companyInfoData.companyId,
-      Name: companyInfoData.name,
-      Description: companyInfoData.description,
-      Industry: companyInfoData.industry
-    }
-
-    if (companyInfoData.companyId != null) {
-      console.log("UPDATE!")
-      axios
-        .put(
-          `${import.meta.env.VITE_API_URL}/api/Companies/update`,
-          jsonDataToUpdate,
-          {
-            headers: { Authorization: `Bearer ${user.token}` },
-            "Content-Type": "application/json"
-          }
-        )
-        .then((response) => {
-          alert("Firma başarıyla güncellendi");
-          setResume(response.data);
-          setIsCompModalOpen(false);
-        })
-        .catch((err) => console.error(err));
-    } else {
-      console.log("ADD!")
-      axios.post(`${import.meta.env.VITE_API_URL}/api/Companies/add`, JSON.stringify(jsonData), {
-        headers: { 
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json"
-        }
-      })
-      .then(response => {
+    try {
+      if (companyInfoData.companyId) {
+        const updatedCompany = await updateCompanyInfo(user, companyInfoData);
+        console.log("Firma güncellendi:", updatedCompany);
+        setResume(updatedCompany.data);
+        setIsCompModalOpen(false);
+        alert("Firma başarıyla güncellendi");
+      } else {
+        const newCompany = await addCompanyInfo(user, companyInfoData);
+        console.log("Firma eklendi:", newCompany);
+        setResume(newCompany.data);
         alert("Şirket başarıyla eklendi");
-        setResume(response.data);
-      })
-      .catch(err => {
-        console.error("Hata detayları:", err.response?.data); // Hata detayını yazdır!
-        console.log(jsonData);
-      });
+      }
+    } catch (error) {
+      console.error("Firma işlemi hatası:", error);
     }
-  }
-  
- ///
+  };
 
-  const handleCVSubmit = (e) => {
+  // CV ADD/UPDATE BUTTON HANDLER
+  const handleCVSubmit = async (e) => {
     e.preventDefault();
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("UserId", user.id);
-    formDataToSend.append("Title", cvFormData.title);
-    formDataToSend.append("Summary", cvFormData.summary);
-    formDataToSend.append("Experience", cvFormData.experience);
-    formDataToSend.append("Education", cvFormData.education);
-    if (cvFormData.cvFile) {
-      formDataToSend.append("CvFilePath", cvFormData.cvFile);
-    } else{
-      formDataToSend.append("CvFilePath", "string");
-    }
-
-    /*selectedCompetences.forEach((id) => {
-      formDataToSend.append("competenceIds", id);
-    }); */
-
-    /*selectedCompetences.forEach((id) => {
-      formDataToSend.append("competenceIds", id);
-    });*/
-
-    const jsonData = {
-      UserId: user.id,
-      Title: cvFormData.title,
-      Summary: cvFormData.summary,
-      Experience: cvFormData.experience,
-      Education: cvFormData.education,
-      CvFilePath: cvFormData.cvFile ? "uploaded_file_path" : "string",
-      CompetenceIds: selectedCompetences.map(c => c.value)  //CompetenceIds: selectedCompetences,
-    };
-
-    const jsonDataToUpdate = {
-      Id: cvFormData.resumeId,
-      Title: cvFormData.title,
-      Summary: cvFormData.summary,
-      Experience: cvFormData.experience,
-      Education: cvFormData.education,
-      CvFilePath: cvFormData.cvFile ? "uploaded_file_path" : "string",
-      CompetenceIds: selectedCompetences.map(c => c.value)  //CompetenceIds: selectedCompetences,
-    }
-    
-    //formDataToSend.append("CompetenceIds", JSON.stringify(selectedCompetences));
-
-    if (cvFormData.resumeId != null) {
-      console.log("UPDATE!")
-      axios
-        .put(
-          `${import.meta.env.VITE_API_URL}/api/Resumes/update`,
-          jsonDataToUpdate,
-          {
-            headers: { Authorization: `Bearer ${user.token}`, "Content-Type": "application/json" },
-          }
-        )
-        .then((response) => {
-          alert("CV başarıyla güncellendi");
-          setResume(response.data);
-        })
-        .catch((err) => console.error(err));
-    } else {
-      console.log("ADD!")
-      axios.post(`${import.meta.env.VITE_API_URL}/api/Resumes/add`, JSON.stringify(jsonData), {
-        headers: { 
-          Authorization: `Bearer ${user.token}`,
-          "Content-Type": "application/json"
-        }
-      })
-      .then(response => {
+    try {
+      if (cvFormData.resumeId) {
+        const updatedResume = await updateResume(
+          user,
+          cvFormData,
+          selectedCompetences
+        );
+        console.log("CV güncellendi:", updatedResume);
+        setResume(updatedResume.data);
+        alert("CV başarıyla güncellendi");
+      } else {
+        const newResume = await addResume(
+          user,
+          cvFormData,
+          selectedCompetences
+        );
+        console.log("CV eklendi:", newResume);
+        setResume(newResume.data);
         alert("CV başarıyla eklendi");
-        setResume(response.data);
-      })
-      .catch(err => {
-        console.error("Hata detayları:", err.response?.data); // Hata detayını yazdır!
-        console.log(jsonData);
-      });
-    }; 
-  }
-
-
-  const InfoItem = ({ label, value }) => (
-    <div className="flex justify-between items-center py-2 border-b last:border-b-0">
-      <span className="text-gray-600">{label}</span>
-      <span className="text-gray-800 font-medium">{value}</span>
-    </div>
-  );
-
+      }
+    } catch (error) {
+      console.error("CV işlemi hatası:", error);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen bg-gray-100">
       <Navbar />
       <div className="container mx-auto pt-20 px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        
         {/* Kullanıcı Bilgileri (Sol Kısım - Daha Küçük) */}
         <div className="bg-white p-6 rounded-lg shadow-md col-span-1">
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
@@ -416,7 +274,10 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
                   Hesap Bilgileri
                 </h3>
-                <InfoItem label="Kullanıcı Adı" value={userInfoData?.userName} />
+                <InfoItem
+                  label="Kullanıcı Adı"
+                  value={userInfoData?.userName}
+                />
                 <InfoItem
                   label="Telefon"
                   value={userInfoData?.phoneNumber || "-"}
@@ -432,245 +293,178 @@ export default function Dashboard() {
                   İletişim Bilgileri
                 </h3>
                 <InfoItem label="Email" value={userInfoData?.email} />
-                <InfoItem label="Kayıt Tarihi" value={userInfoData?.CreatedTime} />{" "}
+                <InfoItem
+                  label="Kayıt Tarihi"
+                  value={userInfoData?.CreatedTime}
+                />{" "}
                 {/* Örnek veri */}
               </div>
             </div>
 
             {/* Profil Düzenleme Modalı */}
             {isUserModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-xl w-full max-w-md p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-xl font-bold">Profili Düzenle</h3>
-                    <button
-                      onClick={() => setIsUserModalOpen(false)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <form className="space-y-2" onSubmit={handleUserInfoSubmit}>
-                    <div>
-                      <label className="block font-medium">Tam Ad</label>
-                      <textarea
-                        label="Tam Ad"
-                        value={userInfoData.fullName}
-                        name="fullName"
-                        onChange={handleUserInfoChange}
-                      ></textarea>
-                    </div>
-                    <div>
-                      <label className="block font-medium">Kullanıcı Adı</label>
-                      <textarea
-                        label="Kullanıcı Adı"
-                        value={userInfoData.userName}
-                        name="userName"
-                        onChange={handleUserInfoChange}
-                      ></textarea>
-                    </div>
-                    <div>
-                      <label className="block font-medium">Email</label>
-                      <textarea
-                        label="Email"
-                        value={userInfoData.email}
-                        name="email"
-                        onChange={handleUserInfoChange}
-                        type="email"
-                      ></textarea>
-                    </div>
-                    <div>
-                      <label className="block font-medium">Telefon Numarası</label>
-                      <textarea
-                        label="Telefon"
-                        value={userInfoData.phoneNumber}
-                        name="phoneNumber"
-                        onChange={handleUserInfoChange}
-                      ></textarea>
-                    </div>
-
-                    <div className="flex justify-end space-x-3 mt-6">
-                      <button
-                        type="button"
-                        onClick={() => setIsUserModalOpen(false)}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                      >
-                        İptal
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                      >
-                        Kaydet
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
+              <FormDialog
+                open={isUserModalOpen}
+                onClose={() => setIsUserModalOpen(false)}
+                title="Profili Düzenle"
+                fields={[
+                  { name: "fullName", label: "Tam Ad" },
+                  { name: "userName", label: "Kullanıcı Adı" },
+                  { name: "email", label: "Email", type: "email" },
+                  { name: "phoneNumber", label: "Telefon Numarası" },
+                ]}
+                formData={userInfoData}
+                onChange={handleUserInfoChange}
+                onSubmit={handleUserInfoSubmit}
+              />
             )}
           </div>
         </div>
 
         {/* CV Formu (Sağ Kısım - Daha Büyük) */}
-        {userInfoData?.isJobSeeker ? 
-        <div className="bg-white p-6 rounded-lg shadow-md col-span-2">
-          <h2 className="text-2xl font-semibold mb-4">
-            {resume ? "CV Güncelle" : "CV Oluştur"}
-          </h2>
-          <form onSubmit={handleCVSubmit} className="space-y-4">
-            <div>
-              <label className="block font-medium">Başlık</label>
-              <input
-                type="text"
-                name="title"
-                value={cvFormData.title}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block font-medium">Özet</label>
-              <textarea
-                name="summary"
-                value={cvFormData.summary}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows="4"
-              ></textarea>
-            </div>
-            <div>
-              <label className="block font-medium">Deneyim</label>
-              <textarea
-                name="experience"
-                value={cvFormData.experience}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows="4"
-              ></textarea>
-            </div>
-            <div>
-              <label className="block font-medium">Eğitim</label>
-              <textarea
-                name="education"
-                value={cvFormData.education}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows="4"
-              ></textarea>
-            </div>
-            {/* Competence Seçim Alanı */}
-            <div>
-              <label className="block font-medium">Yetkinlikler</label>
-              <Select
-                options={competences}
-                value={selectedCompetences}
-                isMulti
-                onChange={handleCompetenceChange}
-                className="w-full basic-multi-select"
-                classNamePrefix="select"
-              />
-              {console.log("Select İçindeki Competences:", competences)}
-            </div>
-            <div>
-              <label className="block font-medium">CV Dosyası</label>
-              <input
-                type="file"
-                name="cvFile"
-                onChange={handleFileChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-md"
-            >
-              Kaydet
-            </button>
-          </form>
-        </div> : 
-        <div className="bg-white p-6 rounded-lg shadow-md col-span-2">
-        <h2 className="text-2xl font-bold mb-4">Firma Bilgileri</h2>
-        
-        {companyInfoData ? (
-          <div>
-            <p><strong>Firma Adı:</strong> {companyInfoData.name}</p>
-            <p><strong>Endüstri:</strong> {companyInfoData.industry}</p>
-            <p><strong>Açıklama:</strong> {companyInfoData.description || "Açıklama eklenmemiş"}</p>
-            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" onClick={() => setIsCompModalOpen(true)}>
-              Güncelle
-            </button>
-
-            {/* Company Info Güncelleme Ekranı */}
-
-            {isCompModalOpen && (
-              <Dialog open={open} onClose={() => setIsCompModalOpen(false)}>
-              <DialogTitle>Firma Bilgilerini Güncelle</DialogTitle>
-              <DialogContent>
-                <TextField
-                  label="Firma Adı"
-                  name="name"
-                  fullWidth
-                  margin="dense"
-                  value={companyInfoData.name}
-                  onChange={handleCompanyInfoChange}
+        {userInfoData?.isJobSeeker ? (
+          <div className="bg-white p-6 rounded-lg shadow-md col-span-2">
+            <h2 className="text-2xl font-semibold mb-4">
+              {resume ? "CV Güncelle" : "CV Oluştur"}
+            </h2>
+            <form onSubmit={handleCVSubmit} className="space-y-4">
+              <div>
+                <label className="block font-medium">Başlık</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={cvFormData.title}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 />
-                <TextField
-                  label="Endüstri"
-                  name="industry"
-                  fullWidth
-                  margin="dense"
-                  value={companyInfoData.industry}
-                  onChange={handleCompanyInfoChange}
+              </div>
+              <div>
+                <label className="block font-medium">Özet</label>
+                <textarea
+                  name="summary"
+                  value={cvFormData.summary}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows="4"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block font-medium">Deneyim</label>
+                <textarea
+                  name="experience"
+                  value={cvFormData.experience}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows="4"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block font-medium">Eğitim</label>
+                <textarea
+                  name="education"
+                  value={cvFormData.education}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows="4"
+                ></textarea>
+              </div>
+              {/* Competence Seçim Alanı */}
+              <div>
+                <label className="block font-medium">Yetkinlikler</label>
+                <Select
+                  options={competences}
+                  value={selectedCompetences}
+                  isMulti
+                  onChange={handleCompetenceChange}
+                  className="w-full basic-multi-select"
+                  classNamePrefix="select"
                 />
-                <TextField
-                  label="Açıklama"
-                  name="description"
-                  fullWidth
-                  margin="dense"
-                  value={companyInfoData.description}
-                  onChange={handleCompanyInfoChange}
+                {console.log("Select İçindeki Competences:", competences)}
+              </div>
+              <div>
+                <label className="block font-medium">CV Dosyası</label>
+                <input
+                  type="file"
+                  name="cvFile"
+                  onChange={handleFileChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
                 />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setIsCompModalOpen(false)} color="secondary">
-                  İptal
-                </Button>
-                <Button onClick={handleCompInfoSubmit} color="primary">
-                  Kaydet
-                </Button>
-              </DialogActions>
-            </Dialog>
-            )}
+              </div>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-2 rounded-md"
+              >
+                Kaydet
+              </button>
+            </form>
           </div>
         ) : (
-          <p>Firma bilgileri yükleniyor...</p>
+          <div className="bg-white p-6 rounded-lg shadow-md col-span-2">
+            <h2 className="text-2xl font-bold mb-4">Firma Bilgileri</h2>
+
+            {companyInfoData ? (
+              <div>
+                <p>
+                  <strong>Firma Adı:</strong> {companyInfoData.name}
+                </p>
+                <p>
+                  <strong>Endüstri:</strong> {companyInfoData.industry}
+                </p>
+                <p>
+                  <strong>Açıklama:</strong>{" "}
+                  {companyInfoData.description || "Açıklama eklenmemiş"}
+                </p>
+                <button
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  onClick={() => setIsCompModalOpen(true)}
+                >
+                  Güncelle
+                </button>
+
+                {/* Company Info Güncelleme Ekranı */}
+
+                {isCompModalOpen && (
+                  <FormDialog
+                    open={isCompModalOpen}
+                    onClose={() => setIsCompModalOpen(false)}
+                    title="Firma Bilgilerini Güncelle"
+                    fields={[
+                      { name: "name", label: "Firma Adı" },
+                      { name: "industry", label: "Endüstri" },
+                      { name: "description", label: "Açıklama" },
+                    ]}
+                    formData={companyInfoData}
+                    onChange={handleCompanyInfoChange}
+                    onSubmit={handleCompInfoSubmit}
+                  />
+                )}
+              </div>
+            ) : (
+              <p>Firma bilgileri yükleniyor...</p>
+            )}
+
+            <h2 className="text-2xl font-bold mt-6 mb-4">İlanlarınız</h2>
+            {jobPostingsData.length > 0 ? (
+              <ul>
+                {jobPostingsData.map((job) => (
+                  <li key={job.id} className="border-b py-2">
+                    <strong>{job.title}</strong> - {job.location}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Henüz iş ilanı eklenmemiş.</p>
+            )}
+
+            <button
+              onClick={() => navigate("/addjobposting")}
+              className="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+            >
+              + İş İlanı Ekle
+            </button>
+          </div>
         )}
-    
-        <h2 className="text-2xl font-bold mt-6 mb-4">İlanlarınız</h2>
-        {jobPostings.length > 0 ? (
-          <ul>
-            {jobPostings.map(job => (
-              <li key={job.id} className="border-b py-2">
-                <strong>{job.title}</strong> - {job.location} 
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Henüz iş ilanı eklenmemiş.</p>
-        )}
-    
-        <button 
-          onClick={() => navigate("/add-job-posting")} 
-          className="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-        >
-          + İş İlanı Ekle
-        </button>
       </div>
-      
-      }    
-        
-      </div> 
     </div>
   );
 }
