@@ -5,11 +5,12 @@ import Navbar from "../components/Navbar";
 import Select from "react-select";
 import { getUserInfo, updateUserInfo } from "../services/UserService";
 import { addCompanyInfo, getCompanyInfo, updateCompanyInfo } from "../services/CompanyService";
-import { getJobPostingInfo } from "../services/JobPostingService";
+import { deleteJobPosting, getJobPostingsInfo } from "../services/JobPostingService";
 import { getAllCompetences } from "../services/CompetenceService";
 import { addResume, getResumeInfo, updateResume } from "../services/ResumeService";
 import { InfoItem } from "../components/InfoItem";
 import FormDialog from "../components/FormDialog";
+import { getAllCities } from "../services/CityService";
 
 
 export default function Dashboard() {
@@ -72,13 +73,7 @@ export default function Dashboard() {
       }
       fetchCompanyInfo();
 
-      // FETCH JOBPOSTING INFO
-      async function fetchJobPostingsInfo() {
-        const data = await getJobPostingInfo(user);
-        setJobPostingsData(data);
-        console.log(jobPostingsData);
-      }
-      fetchJobPostingsInfo();
+      
     }
 
     // FETCH RESUME INFO
@@ -115,6 +110,17 @@ export default function Dashboard() {
     }
     getAllCompetencesInfo();
   }, [user, navigate]);
+
+  useEffect(() => {
+    // FETCH JOBPOSTING INFO
+    async function fetchJobPostingsInfo() {
+      const data = await getJobPostingsInfo(user, companyInfoData.companyId);
+      console.log("Fetched job postings:", data);
+      setJobPostingsData(data);
+    }
+    fetchJobPostingsInfo();
+  },[companyInfoData?.companyId]);
+
 
   const handleChange = (e) => {
     setCvFormData({
@@ -211,6 +217,23 @@ export default function Dashboard() {
       console.error("CV işlemi hatası:", error);
     }
   };
+
+// JOBPOSTING DELETE
+const handleDeleteClick = async (jobId) => {
+  try {
+    const success = await deleteJobPosting(user, jobId);
+    if (success) {
+      setJobPostingsData((prevData) => prevData.filter((job) => job.id !== jobId));
+      alert("İş ilanı başarıyla silindi.");
+    }
+  } catch (error) {
+    console.error("Silme işlemi hatası:", error);
+  }
+};
+
+
+
+
 
   return (
     <div className="w-full min-h-screen bg-gray-100">
@@ -448,13 +471,30 @@ export default function Dashboard() {
               <ul>
                 {jobPostingsData.map((job) => (
                   <li key={job.id} className="border-b py-2">
-                    <strong>{job.title}</strong> - {job.location}
+                    <strong>{job.title}</strong>
+                    <div className="mt-2 flex space-x-4">
+                      <button
+                        onClick={() =>
+                          navigate(`/updatejobposting/${job.id}`)
+                        } 
+                        className="text-blue-500 hover:text-blue-600"
+                      >
+                        Güncelle
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(job.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        Sil
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p>Henüz iş ilanı eklenmemiş.</p>
+              <p>İş ilanı bulunmamaktadır.</p>
             )}
+
 
             <button
               onClick={() => navigate("/addjobposting")}

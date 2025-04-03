@@ -5,6 +5,7 @@ using ProfiWay.Application.Features.JobPostings.Commands.Create;
 using ProfiWay.Application.Features.JobPostings.Commands.Delete;
 using ProfiWay.Application.Features.JobPostings.Commands.Update;
 using ProfiWay.Application.Features.JobPostings.Queries.GetById;
+using ProfiWay.Application.Features.JobPostings.Queries.GetByUserId;
 using ProfiWay.Application.Features.JobPostings.Queries.GetList;
 
 namespace ProfiWay.Presentation.Controllers
@@ -37,6 +38,16 @@ namespace ProfiWay.Presentation.Controllers
         public async Task<IActionResult> GetAll()
         {
             GetListJobPostingsQuery query = new();
+
+            var result = await mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet("getbycompanyid")]
+        public async Task<IActionResult> GetByCompanyId(int companyId)
+        {
+            GetByCompanyIdJobPostingsQuery query = new() { CompanyId = companyId };
 
             var result = await mediator.Send(query);
 

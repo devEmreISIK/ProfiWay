@@ -1,0 +1,214 @@
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getJobPostingInfo, updateJobPosting } from "../services/JobPostingService";
+import { getAllCities, getCityInfo } from "../services/CityService";
+import { getAllCompetences } from "../services/CompetenceService";
+import Select from "react-select";
+import { useAuth } from "../context/AuthContext";
+import { Briefcase, MapPin, FileText } from "lucide-react";
+
+const JobPostingUpdatePage = () => {
+  const { user } = useAuth();
+  const { jobPostingId } = useParams();  // iş ilanı ID'sini URL parametrelerinden al
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    cityId: "",
+    companyId: "",
+    competenceIds: []
+  });
+
+  const [citiesData, setCitiesData] = useState([]);
+  const [cityData, setCityData] = useState({});
+  const [competences, setCompetences] = useState([]);
+  const [selectedCompetences, setSelectedCompetences] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    // Fetch job posting details
+    const fetchJobPosting = async () => {
+      const data = await getJobPostingInfo(user, Number(jobPostingId));
+      setFormData({
+        title: data.title,
+        description: data.description,
+        cityId: String(data.cityId ?? ''), //data.cityId,
+        companyId: data.companyId,
+        competenceIds: data.jobPostingCompetences.map(comp => comp.id),
+      });
+
+      setSelectedCompetences(
+        data.jobPostingCompetences.map((comp) => ({
+          value: comp.id,
+          label: comp.name,
+        }))
+      );
+    };
+
+    // Fetch cities
+    const fetchCities = async () => {
+      const cities = await getAllCities(user);  
+      setCitiesData(cities);
+    };
+
+    //Fetch City
+    const fetchCity = async () => {
+        const city = await getCityInfo(user, formData.cityId);
+        setCityData(city);
+    }
+
+    // Fetch competences
+    const fetchCompetences = async () => {
+      const competencesData = await getAllCompetences(user);  
+      setCompetences(competencesData);
+    };
+
+    fetchJobPosting();
+    fetchCities();
+    fetchCity();
+    fetchCompetences();
+  }, [user, jobPostingId]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCompetenceChange = (selectedOptions) => {
+    setSelectedCompetences(selectedOptions);
+    setFormData((prev) => ({
+      ...prev,
+      competenceIds: selectedOptions.map((comp) => comp.value),
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.title.trim()) newErrors.title = "İlan başlığı gereklidir";
+    if (!formData.description.trim()) newErrors.description = "İlan açıklaması gereklidir";
+    if (!formData.cityId) newErrors.cityId = "Şehir seçimi gereklidir";
+    if (formData.competenceIds.length === 0) newErrors.competenceIds = "En az bir yetenek seçilmelidir";
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        const jobData = {
+          title: formData.title,
+          description: formData.description,
+          cityId: Number(formData.cityId),
+          competenceIds: selectedCompetences.map((comp) => Number(comp.value)),
+        };
+
+        await updateJobPosting(Number(jobPostingId), jobData);  // Güncelleme işlemi
+
+        alert("İş ilanı başarıyla güncellendi!");
+        navigate("/dashboard");  // İş ilanları listesine yönlendirme
+      } catch (error) {
+        alert("İş ilanı güncellenirken bir hata oluştu.");
+      }
+    } else {
+      setErrors(newErrors);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">İş İlanını Güncelle</h1>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* İlan Başlığı */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">İlan Başlığı</label>
+              <div className="relative">
+                <Briefcase className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className={`pl-10 w-full h-11 rounded-lg border ${errors.title ? "border-red-300" : "border-gray-300"}`}
+                  placeholder="Örn: Junior Frontend Developer"
+                />
+              </div>
+              {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+            </div>
+
+            {/* Şehir Seçimi */}
+            <div>
+              <label htmlFor="cityId" className="block text-sm font-medium text-gray-700 mb-1">Şehir</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <select
+                  id="cityId"
+                  name="cityId"
+                  value={formData.cityId}
+                  onChange={handleInputChange}
+                  className={`pl-10 w-full h-11 rounded-lg border ${errors.cityId ? "border-red-300" : "border-gray-300"}`}
+                >
+                  <option value={cityData.value}>Şehir Seçin</option>
+                  {citiesData.map((city) => (
+                    <option key={city.value} value={city.value}>
+                      {city.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.cityId && <p className="mt-1 text-sm text-red-600">{errors.cityId}</p>}
+            </div>
+
+            {/* İlan Açıklaması */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">İlan Açıklaması</label>
+              <div className="relative">
+                <FileText className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className={`pl-10 w-full rounded-lg border ${errors.description ? "border-red-300" : "border-gray-300"}`}
+                  placeholder="İş tanımı, gereksinimler ve beklentiler..."
+                />
+              </div>
+              {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+            </div>
+
+            {/* Yetenekler */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Yetkinlikler</label>
+              <Select
+                options={competences}
+                value={selectedCompetences}
+                isMulti
+                onChange={handleCompetenceChange}
+                className="w-full basic-multi-select"
+                classNamePrefix="select"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                İlanı Güncelle
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default JobPostingUpdatePage;
