@@ -9,7 +9,7 @@ import { Briefcase, MapPin, FileText } from "lucide-react";
 
 const JobPostingUpdatePage = () => {
   const { user } = useAuth();
-  const { jobPostingId } = useParams();  // iş ilanı ID'sini URL parametrelerinden al
+  const { jobPostingId } = useParams();  
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -27,48 +27,42 @@ const JobPostingUpdatePage = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    // Fetch job posting details
-    const fetchJobPosting = async () => {
-      const data = await getJobPostingInfo(user, Number(jobPostingId));
-      setFormData({
-        title: data.title,
-        description: data.description,
-        cityId: String(data.cityId ?? ''), //data.cityId,
-        companyId: data.companyId,
-        competenceIds: data.jobPostingCompetences.map(comp => comp.id),
-      });
-
-      setSelectedCompetences(
-        data.jobPostingCompetences.map((comp) => ({
-          value: comp.id,
-          label: comp.name,
-        }))
-      );
+    const fetchData = async () => {
+      try {
+        const competencesData = await getAllCompetences(user);  
+        setCompetences(competencesData);
+  
+        const jobData = await getJobPostingInfo(user, Number(jobPostingId));
+        const selectedCompetencesMapped = jobData.jobPostingCompetences.map((c) => {
+          const found = competencesData.find(comp => comp.value === c.id);
+          return found ? { value: found.value, label: found.label } : null;
+        }).filter(Boolean); 
+  
+        setFormData({
+          title: jobData.title,
+          description: jobData.description,
+          cityId: String(jobData.cityId ?? ''),
+          companyId: jobData.companyId,
+          competenceIds: selectedCompetencesMapped.map(c => c.value),
+        });
+  
+        setSelectedCompetences(selectedCompetencesMapped);
+  
+        const cities = await getAllCities(user);  
+        setCitiesData(cities);
+      } catch (error) {
+        console.error("Veriler alınırken hata:", error);
+      }
     };
-
-    // Fetch cities
-    const fetchCities = async () => {
-      const cities = await getAllCities(user);  
-      setCitiesData(cities);
-    };
-
-    //Fetch City
-    const fetchCity = async () => {
-        const city = await getCityInfo(user, formData.cityId);
-        setCityData(city);
-    }
-
-    // Fetch competences
-    const fetchCompetences = async () => {
-      const competencesData = await getAllCompetences(user);  
-      setCompetences(competencesData);
-    };
-
-    fetchJobPosting();
-    fetchCities();
-    fetchCity();
-    fetchCompetences();
+  
+    fetchData();
   }, [user, jobPostingId]);
+  
+
+  useEffect(() => {
+    console.log("Formdata: ", formData)
+    console.log();
+  }, [cityData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -93,28 +87,33 @@ const JobPostingUpdatePage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    //e.preventDefault();
     const newErrors = validateForm();
 
     if (Object.keys(newErrors).length === 0) {
       try {
         const jobData = {
+          id: jobPostingId,
           title: formData.title,
           description: formData.description,
           cityId: Number(formData.cityId),
           competenceIds: selectedCompetences.map((comp) => Number(comp.value)),
         };
 
-        await updateJobPosting(Number(jobPostingId), jobData);  // Güncelleme işlemi
+        await updateJobPosting(Number(jobPostingId), jobData);  
 
         alert("İş ilanı başarıyla güncellendi!");
-        navigate("/dashboard");  // İş ilanları listesine yönlendirme
+        navigate("/dashboard");  
       } catch (error) {
         alert("İş ilanı güncellenirken bir hata oluştu.");
       }
     } else {
       setErrors(newErrors);
     }
+  };
+
+  const handleGoBack = () => {
+    navigate(-1); // This will take you to the previous page in history
   };
 
   return (
@@ -196,7 +195,14 @@ const JobPostingUpdatePage = () => {
             </div>
 
             {/* Submit Button */}
-            <div className="pt-4">
+            <div className="pt-4 flex justify-between gap-5">
+            <button
+                type="button"
+                onClick={handleGoBack}
+                className="w-full bg-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-400 transition-colors focus:outline-none"
+              >
+                Geri Git
+              </button>
               <button
                 type="submit"
                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

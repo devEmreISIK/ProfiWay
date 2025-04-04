@@ -119,7 +119,7 @@ export default function Dashboard() {
       setJobPostingsData(data);
     }
     fetchJobPostingsInfo();
-  },[companyInfoData?.companyId]);
+  },[companyInfoData?.companyId, navigate]);
 
 
   const handleChange = (e) => {
