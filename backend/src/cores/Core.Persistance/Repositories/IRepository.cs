@@ -8,6 +8,7 @@ public interface IRepository<TEntity, TId> where TEntity : Entity<TId>
     TEntity Add(TEntity entity);
     TEntity Update(TEntity entity);
     TEntity Delete(TEntity entity);
+    IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? filter = null, bool enableTracking = true);
 
     List<TEntity> GetAll(Expression<Func<TEntity, bool>>? filter = null, bool enableTracking = true, bool include = true);
     TEntity? Get(Expression<Func<TEntity, bool>> filter, bool enableTracking = true, bool include = true);

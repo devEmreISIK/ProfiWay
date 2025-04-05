@@ -1,7 +1,7 @@
 ﻿using Core.Persistance.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-
+using LinqKit;
 namespace Core.Persistance.Repositories;
 
 public abstract class EfRepositoryBase<TEntity, TId, TContext> : IRepository<TEntity, TId>, IAsyncRepository<TEntity, TId>
@@ -14,7 +14,24 @@ public abstract class EfRepositoryBase<TEntity, TId, TContext> : IRepository<TEn
         Context = context;
     }
 
-    
+    public virtual IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? filter = null, bool enableTracking = true)
+    {
+        var query = Context.Set<TEntity>().AsQueryable();
+
+        if (!enableTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        return query;
+    }
+
+
     public TEntity Add(TEntity entity)
     {
         entity.CreatedTime = DateTime.UtcNow;
@@ -120,7 +137,9 @@ public abstract class EfRepositoryBase<TEntity, TId, TContext> : IRepository<TEn
 
     public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null, bool enableTracking = true, bool include = true, CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = Context.Set<TEntity>();
+        //IQueryable<TEntity> query = Context.Set<TEntity>();
+
+        IQueryable<TEntity> query = Query(filter, enableTracking);
 
         if (filter is not null)
         {

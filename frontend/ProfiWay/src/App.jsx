@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import JobListings from './pages/job_listing_page';
 import JobPostingForm from './pages/job_add_page';
 import JobPostingUpdatePage from './pages/job_posting_update_page';
+import JobDetail from './pages/job_detail_page';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path='/joblistings' element={<JobListings/>}/>
           <Route path='/addjobposting' element={<JobPostingForm/>}/>
           <Route path='/updatejobposting/:jobPostingId' element={<JobPostingUpdatePage/>}/>
+          <Route path='/jobs/:id' element={<JobDetail/>}/>
         </Routes>
      </Router>
     </AuthProvider>

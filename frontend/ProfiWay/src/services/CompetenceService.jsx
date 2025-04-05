@@ -9,9 +9,11 @@ export async function getAllCompetences(user) {
     });
 
     if (response.data) {
-      return response.data.map((comp) => ({
-        value: comp.id,
-        label: comp.name,
+      return response.data.map((c) => ({
+        id: c.id,       
+        name: c.name,   
+        value: c.id,
+        label: c.name,
       }));
     }
   } catch (error) {

@@ -35,10 +35,8 @@ namespace ProfiWay.Presentation.Controllers
         }
 
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] GetListJobPostingsQuery query)
         {
-            GetListJobPostingsQuery query = new();
-
             var result = await mediator.Send(query);
 
             return Ok(result);

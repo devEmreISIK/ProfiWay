@@ -86,3 +86,29 @@ export async function addCompanyInfo(user, companyInfoData) {
     throw err;
   }
 }
+
+
+export async function getAllCompanies(user) {
+  try {
+    const response = await axios.get(`${API_URL}/api/Companies/getall`, {
+      headers: { Authorization: `Bearer ${user.token}` },
+    });
+
+    if (response.data) {
+      return response.data.map((company) => ({
+        id: company.id, 
+        name: company.name, 
+        value: company.id,
+        label: company.name,
+      })) || [];
+    }
+  } catch (error) {
+    if (error.response?.status === 404) {
+      console.warn("Firma bilgileri bulunamadı.");
+      return [];
+    } else {
+      console.error("Bir hata oluştu:", error);
+    }
+    return null;
+  }
+}

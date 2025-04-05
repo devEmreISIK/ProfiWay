@@ -120,3 +120,44 @@ export async function deleteJobPosting(user, jobId) {
     throw error;
   }
 }
+
+
+export async function getAllJobPostings(user) {
+  try {
+      const response = await axios.get(
+          `${API_URL}/api/JobPostings/getall`,
+          {
+              headers: { Authorization: `Bearer ${user.token}` },
+          }
+      );
+      return response.data;
+  } catch (error) {
+      console.error("İş ilanları çekilirken hata oluştu:", error);
+      throw error;
+  }
+}
+
+export async function getFilteredJobPostings(user, filters) {
+  try {
+    const params = {
+      index: filters.page,
+      size: filters.size,
+      search: filters.search,
+      location: filters.location,
+      skill: filters.skill,
+    };
+
+    const response = await axios.get(`${API_URL}/api/JobPostings/getall`, {
+      headers: { Authorization: `Bearer ${user.token}` },
+      params
+    });
+
+    return {
+      items: response.data,
+      totalCount: response.headers['x-total-count'] 
+    };
+  } catch (error) {
+    console.error("Filtrelenmiş ilanlar alınamadı:", error);
+    throw error;
+  }
+}

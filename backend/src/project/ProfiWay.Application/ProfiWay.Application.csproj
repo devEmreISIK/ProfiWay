@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
+	<PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="8.1.5" />
 	<PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.6.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />

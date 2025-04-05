@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Briefcase, BookOpen, LogOut, Menu, X, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -59,8 +61,8 @@ const Navbar = () => {
             </div>
 
             {/* Logout Button */}
-            <Link 
-              to="/logout"
+            <button 
+              onClick={logout}  // Logout işlemi için onClick kullanıyoruz
               className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
                 isScrolled 
                   ? 'bg-red-100 text-red-600 hover:bg-red-200' 
@@ -69,7 +71,7 @@ const Navbar = () => {
             >
               <LogOut className="h-5 w-5" />
               <span>Çıkış</span>
-            </Link>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,7 +105,7 @@ const Navbar = () => {
               <MobileNavLink to="/profile" icon={<User className="h-5 w-5" />}>
                 Profilim
               </MobileNavLink>
-              <MobileNavLink to="/logout" icon={<LogOut className="h-5 w-5" />}>
+              <MobileNavLink to="/" onClick={logout} icon={<LogOut className="h-5 w-5" />}>
                 Çıkış
               </MobileNavLink>
             </div>
