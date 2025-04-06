@@ -58,9 +58,9 @@ export async function updateCompanyInfo(user, companyInfoData) {
   }
 }
 
-export async function addCompanyInfo(user, companyInfoData) {
+export async function addCompanyInfo(user, userId, companyInfoData) {
   const jsonData = {
-    UserId: user.id,
+    UserId: userId,
     Name: companyInfoData.name,
     Description: companyInfoData.description,
     Industry: companyInfoData.industry,

@@ -10,7 +10,6 @@ import { getAllCompetences } from "../services/CompetenceService";
 import { addResume, getResumeInfo, updateResume } from "../services/ResumeService";
 import { InfoItem } from "../components/InfoItem";
 import FormDialog from "../components/FormDialog";
-import { getAllCities } from "../services/CityService";
 
 
 export default function Dashboard() {
@@ -46,15 +45,18 @@ export default function Dashboard() {
     name: "",
     industry: "",
     description: "",
+    companyId: ""
   });
 
-  const [isCompModalOpen, setIsCompModalOpen] = useState(false);
+  const [isCompUpdateModalOpen, setIsCompUpdateModalOpen] = useState(false);
+  const [isCompAddModalOpen, setIsCompAddModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
+
 
     // FETCH USER INFO
     async function fetchUserInfo() {
@@ -65,15 +67,13 @@ export default function Dashboard() {
     }
     fetchUserInfo();
 
-    if (!user || !user.isJobSeeker) {
+    if (!user || user?.role != "JobSeeker") {
       // FETCH COMPANY INFO
       async function fetchCompanyInfo() {
         const data = await getCompanyInfo(user);
         setCompanyInfoData(data);
       }
       fetchCompanyInfo();
-
-      
     }
 
     // FETCH RESUME INFO
@@ -101,7 +101,7 @@ export default function Dashboard() {
         console.warn("Özgeçmiş verisi bulunamadı.");
       }
     }
-    fetchResumeInfo();
+    //fetchResumeInfo();
 
     // GETALL COMPETENCES
     async function getAllCompetencesInfo() {
@@ -109,6 +109,11 @@ export default function Dashboard() {
       setCompetences(data);
     }
     getAllCompetencesInfo();
+
+
+    if (user?.role == "JobSeeker") {
+      fetchResumeInfo()
+    }
   }, [user, navigate]);
 
   useEffect(() => {
@@ -116,9 +121,14 @@ export default function Dashboard() {
     async function fetchJobPostingsInfo() {
       const data = await getJobPostingsInfo(user, companyInfoData.companyId);
       console.log("Fetched job postings:", data);
+      console.log("Company Id: ", companyInfoData.companyId)
       setJobPostingsData(data);
     }
-    fetchJobPostingsInfo();
+    //fetchJobPostingsInfo();
+
+    if (user?.role != "JobSeeker") {
+      fetchJobPostingsInfo()
+    }
   },[companyInfoData?.companyId, navigate]);
 
 
@@ -176,13 +186,16 @@ export default function Dashboard() {
       if (companyInfoData.companyId) {
         const updatedCompany = await updateCompanyInfo(user, companyInfoData);
         console.log("Firma güncellendi:", updatedCompany);
-        setResume(updatedCompany.data);
-        setIsCompModalOpen(false);
+        //setResume(updatedCompany.data);
+        setIsCompUpdateModalOpen(false);
         alert("Firma başarıyla güncellendi");
       } else {
-        const newCompany = await addCompanyInfo(user, companyInfoData);
+        const userId = user.id;
+        const newCompany = await addCompanyInfo(user, userId, companyInfoData);
         console.log("Firma eklendi:", newCompany);
-        setResume(newCompany.data);
+        setCompanyInfoData(newCompany.data)
+        //setResume(newCompany.data);
+        setIsCompAddModalOpen(false);
         alert("Şirket başarıyla eklendi");
       }
     } catch (error) {
@@ -307,7 +320,7 @@ const handleDeleteClick = async (jobId) => {
                 />
                 <InfoItem
                   label="Rol"
-                  value={userInfoData?.isJobSeeker ? "İş Arayan" : "İşveren"}
+                  value={user?.role == "JobSeeker" ? "İş Arayan" : "İşveren"}
                 />
               </div>
 
@@ -345,7 +358,7 @@ const handleDeleteClick = async (jobId) => {
         </div>
 
         {/* CV Formu (Sağ Kısım - Daha Büyük) */}
-        {userInfoData?.isJobSeeker ? (
+        {user?.role == "JobSeeker" ? (
           <div className="bg-white p-6 rounded-lg shadow-md col-span-2">
             <h2 className="text-2xl font-semibold mb-4">
               {resume ? "CV Güncelle" : "CV Oluştur"}
@@ -439,31 +452,59 @@ const handleDeleteClick = async (jobId) => {
                 </p>
                 <button
                   className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                  onClick={() => setIsCompModalOpen(true)}
+                  onClick={() => setIsCompUpdateModalOpen(true)}
                 >
                   Güncelle
                 </button>
-
-                {/* Company Info Güncelleme Ekranı */}
-
-                {isCompModalOpen && (
-                  <FormDialog
-                    open={isCompModalOpen}
-                    onClose={() => setIsCompModalOpen(false)}
-                    title="Firma Bilgilerini Güncelle"
-                    fields={[
-                      { name: "name", label: "Firma Adı" },
-                      { name: "industry", label: "Endüstri" },
-                      { name: "description", label: "Açıklama" },
-                    ]}
-                    formData={companyInfoData}
-                    onChange={handleCompanyInfoChange}
-                    onSubmit={handleCompInfoSubmit}
-                  />
-                )}
               </div>
             ) : (
-              <p>Firma bilgileri yükleniyor...</p>
+              <button
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                onClick={() => {
+                  setCompanyInfoData({
+                    name: "",
+                    industry: "",
+                    description: "",
+                  });
+                  setIsCompAddModalOpen(true);
+                }}
+              >
+                Ekle
+              </button>
+            )}
+
+            {/* Company Info Güncelleme Ekranı */}
+
+            {isCompUpdateModalOpen && (
+              <FormDialog
+                open={isCompUpdateModalOpen}
+                onClose={() => setIsCompUpdateModalOpen(false)}
+                title="Firma Bilgilerini Güncelle"
+                fields={[
+                  { name: "name", label: "Firma Adı" },
+                  { name: "industry", label: "Endüstri" },
+                  { name: "description", label: "Açıklama" },
+                ]}
+                formData={companyInfoData}
+                onChange={handleCompanyInfoChange}
+                onSubmit={handleCompInfoSubmit}
+              />
+            )}
+
+            {isCompAddModalOpen && (
+              <FormDialog
+                open={isCompAddModalOpen}
+                onClose={() => setIsCompAddModalOpen(false)}
+                title="Firma Bilgilerini Ekle"
+                fields={[
+                  { name: "name", label: "Firma Adı" },
+                  { name: "industry", label: "Endüstri" },
+                  { name: "description", label: "Açıklama" },
+                ]}
+                formData={companyInfoData}
+                onChange={handleCompanyInfoChange}
+                onSubmit={handleCompInfoSubmit}
+              />
             )}
 
             <h2 className="text-2xl font-bold mt-6 mb-4">İlanlarınız</h2>
@@ -474,9 +515,13 @@ const handleDeleteClick = async (jobId) => {
                     <strong>{job.title}</strong>
                     <div className="mt-2 flex space-x-4">
                       <button
-                        onClick={() =>
-                          navigate(`/updatejobposting/${job.id}`)
-                        } 
+                        onClick={() => navigate(`/job-applications/${job.id}`)}
+                        className="text-green-500 hover:text-green-600"
+                      >
+                        Başvuruları Görüntüle
+                      </button>
+                      <button
+                        onClick={() => navigate(`/updatejobposting/${job.id}`)}
                         className="text-blue-500 hover:text-blue-600"
                       >
                         Güncelle
@@ -494,7 +539,6 @@ const handleDeleteClick = async (jobId) => {
             ) : (
               <p>İş ilanı bulunmamaktadır.</p>
             )}
-
 
             <button
               onClick={() => navigate("/addjobposting")}

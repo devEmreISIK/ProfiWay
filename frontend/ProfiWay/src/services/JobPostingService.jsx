@@ -2,10 +2,10 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function getJobPostingsInfo(user, compId) {
+export async function getJobPostingsInfo(user, companyId) {
   try {
     const response = await axios.get(
-      `${API_URL}/api/JobPostings/getbycompanyid?companyId=${compId}`,
+      `${API_URL}/api/JobPostings/getbycompanyid?companyId=${companyId}`,
       {
         headers: { Authorization: `Bearer ${user.token}` },
       }
