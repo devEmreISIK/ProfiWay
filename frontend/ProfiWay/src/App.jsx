@@ -10,6 +10,7 @@ import JobPostingForm from './pages/job_add_page';
 import JobPostingUpdatePage from './pages/job_posting_update_page';
 import JobDetail from './pages/job_detail_page';
 import JobApplications from './pages/job_applications_page';
+import MyApplicationsPage from './pages/my_applications_page';
 
 
 function App() {
@@ -25,8 +26,8 @@ function App() {
           <Route path='/addjobposting' element={<JobPostingForm/>}/>
           <Route path='/updatejobposting/:jobPostingId' element={<JobPostingUpdatePage/>}/>
           <Route path='/jobs/:id' element={<JobDetail/>}/>
-          // App.jsx'e yeni route ekleyin
           <Route path="/job-applications/:jobId" element={<JobApplications />} />
+          <Route path="/myapplications" element={<MyApplicationsPage />} />
         </Routes>
      </Router>
     </AuthProvider>

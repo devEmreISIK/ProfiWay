@@ -26,7 +26,9 @@ public class GetListApplicationByJobPostingQuery : IRequest<List<GetListApplicat
         }
         public async Task<List<GetListApplicationByJobPostingResponseDto>> Handle(GetListApplicationByJobPostingQuery request, CancellationToken cancellationToken)
         {
-            var cachedData = await _redisService.GetDataAsync<List<GetListApplicationByJobPostingResponseDto>>("applicationsbyjob");
+            string cacheKey = $"applications({request.JobPostingId}_{request.Index}_{request.Size})";
+
+            var cachedData = await _redisService.GetDataAsync<List<GetListApplicationByJobPostingResponseDto>>(cacheKey);
 
             if (cachedData is not null)
             {
@@ -37,7 +39,7 @@ public class GetListApplicationByJobPostingQuery : IRequest<List<GetListApplicat
 
             var responses = _mapper.Map<List<GetListApplicationByJobPostingResponseDto>>(applications);
 
-            await _redisService.AddDataAsync($"applications_job{request.JobPostingId}({request.Index}, {request.Size})", responses);
+            await _redisService.AddDataAsync(cacheKey, responses);
             
             return responses;
         }

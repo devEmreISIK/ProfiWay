@@ -8,21 +8,25 @@ export async function getAllCompetences(user) {
       headers: { Authorization: `Bearer ${user.token}` },
     });
 
-    if (response.data) {
+    if (response.data && Array.isArray(response.data)) { 
       return response.data.map((c) => ({
-        id: c.id,       
-        name: c.name,   
-        value: c.id,
-        label: c.name,
+        id: c.id,
+        name: c.name,
+        value: c.id, 
+        label: c.name, 
       }));
-    }
-  } catch (error) {
-    if (error.response.status === 404) {
-      console.warn("Yetkinlik bilgileri bulunamadı.");
-      return "";
     } else {
-      console.error("Bir hata oluştu:", error);
+      console.warn("getAllCompetences: No data or data is not an array.");
+      return [];
     }
-    return null;
+
+  } catch (error) {
+    if (error.response && error.response.status === 404) { 
+      console.warn("Yetkinlik bilgileri bulunamadı (404).");
+      return [];
+    } else {
+      console.error("Yetkinlikler alınırken bir hata oluştu:", error);
+      return [];
+    }
   }
 }

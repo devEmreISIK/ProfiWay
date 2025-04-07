@@ -47,3 +47,21 @@ export async function updateApplicationStatus(user, applicationId, status) {
     throw error;
   }
 }
+
+export async function getApplicationsByUserId(user) {
+  if (!user || !user.id || !user.token) {
+    console.error("Kullanıcı bilgileri eksik veya geçersiz.");
+    throw new Error("Kullanıcı bilgileri eksik veya geçersiz."); 
+  }
+
+  try {
+    const response = await axios.get(
+      `${API_URL}/api/Applications/getallbyuserid?id=${user.id}`, 
+      { headers: { Authorization: `Bearer ${user.token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Kullanıcının başvuruları alınamadı:", error.response?.data || error.message);
+    throw error;
+  }
+}

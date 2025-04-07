@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Home, Briefcase, BookOpen, LogOut, Menu, X, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,6 +7,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,23 +47,12 @@ const Navbar = () => {
               Kariyer Rehberi
             </NavLink>
             
-            {/* Profile Button */}
-            <div className="relative ml-4">
-              <button 
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
-                  isScrolled 
-                    ? 'bg-blue-600 text-purple-900 hover:bg-blue-700' 
-                    : 'bg-white/10 text-purple-900 hover:bg-white/20'
-                }`}
-              >
-                <User className="h-5 w-5" />
-                <span>Profilim</span>
-              </button>
-            </div>
-
             {/* Logout Button */}
             <button 
-              onClick={logout}  // Logout işlemi için onClick kullanıyoruz
+              onClick={() => {
+                logout;
+                navigate("/")
+              }}  
               className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-colors ${
                 isScrolled 
                   ? 'bg-red-100 text-red-600 hover:bg-red-200' 
@@ -101,9 +91,6 @@ const Navbar = () => {
               </MobileNavLink>
               <MobileNavLink to="/career-guide" icon={<BookOpen className="h-5 w-5" />}>
                 Kariyer Rehberi
-              </MobileNavLink>
-              <MobileNavLink to="/profile" icon={<User className="h-5 w-5" />}>
-                Profilim
               </MobileNavLink>
               <MobileNavLink to="/" onClick={logout} icon={<LogOut className="h-5 w-5" />}>
                 Çıkış

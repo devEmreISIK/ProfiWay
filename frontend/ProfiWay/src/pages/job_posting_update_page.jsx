@@ -43,7 +43,7 @@ const JobPostingUpdatePage = () => {
           description: jobData.description,
           cityId: String(jobData.cityId ?? ''),
           companyId: jobData.companyId,
-          competenceIds: selectedCompetencesMapped.map(c => c.value),
+          competenceIds: selectedCompetencesMapped.map(c => c.value)
         });
   
         setSelectedCompetences(selectedCompetencesMapped);
@@ -57,6 +57,7 @@ const JobPostingUpdatePage = () => {
   
     fetchData();
   }, [user, jobPostingId]);
+
   
 
   useEffect(() => {

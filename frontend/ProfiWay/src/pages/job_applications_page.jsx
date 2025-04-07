@@ -6,6 +6,7 @@ import { getJobPostingInfo } from '../services/JobPostingService';
 import { getApplicationsByJobPosting, updateApplicationStatus } from '../services/ApplicationService';
 import { getResumeInfo } from '../services/ResumeService'; 
 import { getUserInfo } from '../services/UserService';
+import Navbar from '../components/Navbar';
 
 export default function JobApplications() {
     const { jobId } = useParams();
@@ -150,7 +151,10 @@ export default function JobApplications() {
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
-            <div className="max-w-6xl mx-auto">
+            <Navbar/>
+            <div className='container mx-auto pt-20 px-6 gap-6'>
+                <div className="max-w-6xl mx-auto">
+            </div>
                 {/* İlan Detayları */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                    {/* ... (job title, description, geri dön butonu - aynı) ... */}

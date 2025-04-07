@@ -5,6 +5,7 @@ using ProfiWay.Application.Features.Applications.Commands.Create;
 using ProfiWay.Application.Features.Applications.Commands.Delete;
 using ProfiWay.Application.Features.Applications.Commands.Update;
 using ProfiWay.Application.Features.Applications.Queries.GetList;
+using ProfiWay.Application.Features.Applications.Queries.GetListByUser;
 
 
 namespace ProfiWay.Presentation.Controllers
@@ -35,9 +36,19 @@ namespace ProfiWay.Presentation.Controllers
         }
 
         [HttpGet("getallbyjobpostings")]
-        public async Task<IActionResult> GetAll(int id)
+        public async Task<IActionResult> GetAllByJobPostings(int id)
         {
             GetListApplicationByJobPostingQuery query = new() { JobPostingId = id };
+
+            var result = await mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpGet("getallbyuserid")]
+        public async Task<IActionResult> GetAllByUserId(string id)
+        {
+            GetListApplicationByUserIdQuery query = new() { UserId = id };
 
             var result = await mediator.Send(query);
 

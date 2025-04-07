@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Select from "react-select";
@@ -57,7 +57,7 @@ export default function Dashboard() {
       return;
     }
 
-
+    
     // FETCH USER INFO
     async function fetchUserInfo() {
       if (user) {
@@ -94,7 +94,7 @@ export default function Dashboard() {
         setSelectedCompetences(
           data.resumeCompetences.map((comp) => ({
             value: comp.id,
-            label: comp.name,
+            label: comp.competenceName,
           }))
         );
       } else {
@@ -109,7 +109,7 @@ export default function Dashboard() {
       setCompetences(data);
     }
     getAllCompetencesInfo();
-
+    console.log(user?.role)
 
     if (user?.role == "JobSeeker") {
       fetchResumeInfo()
@@ -244,7 +244,8 @@ const handleDeleteClick = async (jobId) => {
   }
 };
 
-
+console.log("OPTIONS PROPU İÇİN VERİ:", JSON.stringify(competences));
+console.log("VALUE PROPU İÇİN VERİ:", JSON.stringify(selectedCompetences));
 
 
 
@@ -284,6 +285,7 @@ const handleDeleteClick = async (jobId) => {
               </h2>
               <p className="text-gray-600">{userInfoData?.email}</p>
 
+              <div className=" grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={() => setIsUserModalOpen(true)}
                 className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 flex items-center"
@@ -303,6 +305,38 @@ const handleDeleteClick = async (jobId) => {
                 </svg>
                 Profili Düzenle
               </button>
+
+              {user?.role == "JobSeeker" && (
+                <button
+                onClick={() => navigate(`/myapplications`)}
+                className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition duration-300 flex items-center"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  />
+                </svg>
+                Başvurularım
+              </button>
+              )}
+
+            {user?.role == "Company" && (
+                <button
+                onClick={() => ""}
+                className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition duration-300 flex items-center text-center place-content-center"
+              >
+                Hoş geldiniz!
+              </button>
+              )}
+              </div>
             </div>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -333,7 +367,6 @@ const handleDeleteClick = async (jobId) => {
                   label="Kayıt Tarihi"
                   value={userInfoData?.CreatedTime}
                 />{" "}
-                {/* Örnek veri */}
               </div>
             </div>
 
@@ -354,6 +387,8 @@ const handleDeleteClick = async (jobId) => {
                 onSubmit={handleUserInfoSubmit}
               />
             )}
+          </div>
+          <div>
           </div>
         </div>
 
