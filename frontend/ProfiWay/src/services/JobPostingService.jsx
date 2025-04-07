@@ -153,8 +153,8 @@ export async function getFilteredJobPostings(user, filters) {
     });
 
     return {
-      items: response.data,
-      totalCount: response.headers['x-total-count'] 
+      items: response.data.items,
+      totalCount: response.data.totalCount 
     };
   } catch (error) {
     console.error("Filtrelenmiş ilanlar alınamadı:", error);

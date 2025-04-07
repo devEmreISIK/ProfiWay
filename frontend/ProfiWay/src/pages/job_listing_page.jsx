@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Search, Building2, MapPin, Briefcase } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import { getFilteredJobPostings } from "../services/jobPostingService";
+import { getFilteredJobPostings } from "../services/JobPostingService";
 import { getAllCities } from "../services/cityService";
-import { getAllCompetences } from "../services/competenceService";
+import { getAllCompetences } from "../services/CompetenceService";
 import { getAllCompanies } from "../services/CompanyService";
 
 export default function JobListings() {
@@ -20,7 +20,7 @@ export default function JobListings() {
     location: "",
     skill: "",
     page: 0,
-    size: 20,
+    size: 5,
   });
   const [cities, setCities] = useState([]);
   const [competences, setCompetences] = useState([]);
@@ -47,20 +47,32 @@ export default function JobListings() {
   }, [user]);
 
   useEffect(() => {
-    const loadJobs = async () => {
-      setIsLoading(true);
-      try {
-        const result = await getFilteredJobPostings(user, filters);
-        setData({
-          jobs: result.items,
-          totalCount: result.meta?.totalCount || result.items.length,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadJobs();
-  }, [filters, user]);
+  const loadJobs = async () => {
+    setIsLoading(true);
+    try {
+      // getFilteredJobPostings artık { Items: [], TotalCount: ... } döndürüyor
+      const result = await getFilteredJobPostings(user, filters);
+
+      // ---> VERİYİ DOĞRU ŞEKİLDE AYARLA <---
+      setData({
+        jobs: result.items || [], // Gelen listedeki Items'ı kullan
+        totalCount: result.totalCount || 0, // Gelen listedeki TotalCount'u kullan
+      });
+
+      console.log("data: ",data)
+
+    } catch (error) { // Hata durumunu da ele al
+       console.error("İlanlar yüklenirken hata:", error);
+       setData({ jobs: [], totalCount: 0 }); // Hata durumunda state'i sıfırla
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // user varsa ve filtreler hazırsa yükle (isteğe bağlı kontrol)
+  if (user) {
+     loadJobs();
+  }
+}, [filters, user]); // Bağımlılıklar doğru
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 0 }));

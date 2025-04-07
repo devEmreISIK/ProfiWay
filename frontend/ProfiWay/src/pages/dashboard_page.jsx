@@ -111,10 +111,11 @@ export default function Dashboard() {
     getAllCompetencesInfo();
     console.log(user?.role)
 
-    if (user?.role == "JobSeeker") {
+    if (user?.role === "JobSeeker") {
       fetchResumeInfo()
     }
   }, [user, navigate]);
+
 
   useEffect(() => {
     // FETCH JOBPOSTING INFO
@@ -126,10 +127,10 @@ export default function Dashboard() {
     }
     //fetchJobPostingsInfo();
 
-    if (user?.role != "JobSeeker") {
+    if (user?.role === "Company") {
       fetchJobPostingsInfo()
     }
-  },[companyInfoData?.companyId, navigate]);
+  },[companyInfoData?.companyId, user, navigate]);
 
 
   const handleChange = (e) => {

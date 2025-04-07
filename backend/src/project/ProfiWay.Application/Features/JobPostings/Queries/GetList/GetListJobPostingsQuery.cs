@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Core.Application.Pipelines.Performance;
+using Core.Persistance.DTOs;
 using LinqKit;
 using MediatR;
 using ProfiWay.Application.Services.RedisServices;
@@ -10,7 +11,7 @@ using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.JobPostings.Queries.GetList;
 
-public class GetListJobPostingsQuery : IRequest<List<GetListJobPostingsResponseDto>>, IPerformanceRequest
+public class GetListJobPostingsQuery : IRequest<PaginatedListDto<GetListJobPostingsResponseDto>>, IPerformanceRequest
 {
     public int Index { get; set; }
     public int Size { get; set; }
@@ -18,7 +19,7 @@ public class GetListJobPostingsQuery : IRequest<List<GetListJobPostingsResponseD
     public int? Location { get; set; }
     public int? Skill { get; set; }
 
-    public class GetListJobPostingsQueryHandler : IRequestHandler<GetListJobPostingsQuery, List<GetListJobPostingsResponseDto>>
+    public class GetListJobPostingsQueryHandler : IRequestHandler<GetListJobPostingsQuery, PaginatedListDto<GetListJobPostingsResponseDto>>
     {
         private readonly IJobPostingRepository _jobPostingRepository;
         private readonly IMapper _mapper;
@@ -31,16 +32,11 @@ public class GetListJobPostingsQuery : IRequest<List<GetListJobPostingsResponseD
             _redisService = redisService;
         }
 
-        public async Task<List<GetListJobPostingsResponseDto>> Handle(GetListJobPostingsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedListDto<GetListJobPostingsResponseDto>> Handle(GetListJobPostingsQuery request, CancellationToken cancellationToken)
         {
-            var cacheKey = $"jobpostings({request.Index}, {request.Size}, {request.Search}, {request.Location}, {request.Skill})";
-
-            // Try to fetch the data from cache
-            var cachedData = await _redisService.GetDataAsync<List<GetListJobPostingsResponseDto>>(cacheKey);
-            if (cachedData != null)
-            {
-                return cachedData;
-            }
+            var cacheKey = $"paginated_jobpostings({request.Index}, {request.Size}, {request.Search}, {request.Location}, {request.Skill})";
+            var cachedData = await _redisService.GetDataAsync<PaginatedListDto<GetListJobPostingsResponseDto>>(cacheKey);
+            if (cachedData != null) return cachedData;
 
 
             var predicate = PredicateBuilder.New<JobPosting>(x => true);
@@ -60,23 +56,38 @@ public class GetListJobPostingsQuery : IRequest<List<GetListJobPostingsResponseD
                 predicate = predicate.And(x => x.JobPostingCompetences.Any(c => c.CompetenceId == request.Skill.Value));
             }
 
+            // Tüm eşleşen ilanları al
             List<JobPosting> jobPostings = await _jobPostingRepository.GetAllAsync(
                     filter: predicate,
                     enableTracking: false,
                     cancellationToken: cancellationToken
                 );
 
+            // ---> TOPLAM SAYIYI AL <---
+            int totalCount = jobPostings.Count;
+
+            // O anki sayfa için ilanları al (Skip/Take)
             var pagedJobPostings = jobPostings
                 .Skip(request.Index * request.Size)
                 .Take(request.Size)
                 .ToList();
 
-
+            // Sayfadaki ilanları DTO'ya map'le
             var responses = _mapper.Map<List<GetListJobPostingsResponseDto>>(pagedJobPostings);
 
-            await _redisService.AddDataAsync(cacheKey, responses);
+            // ---> YENİ WRAPPER DTO'yu OLUŞTUR <---
+            var result = new PaginatedListDto<GetListJobPostingsResponseDto>
+            {
+                Items = responses,
+                TotalCount = totalCount
+                // İsteğe bağlı: Index = request.Index, Size = request.Size vb.
+            };
 
-            return responses;
+            // Cache'e yeni yapıyı kaydet
+            await _redisService.AddDataAsync(cacheKey, result);
+
+            // Yeni yapıyı döndür
+            return result;
         }
     }
 }

@@ -30,10 +30,10 @@ public class GetByIdJobPostingsQuery : IRequest<GetByIdJobPostingsResponseDto>, 
         public async Task<GetByIdJobPostingsResponseDto> Handle(GetByIdJobPostingsQuery request, CancellationToken cancellationToken)
         {
             var cachedData = await _redisService.GetDataAsync<GetByIdJobPostingsResponseDto>($"jobpostings_{request.Id}");
-            /*if (cachedData != null)
+            if (cachedData != null)
             {
                 return cachedData;
-            }*/
+            }
 
             JobPosting? jobPosting = await _jobPostingRepository.GetAsync(
                 x => x.Id == request.Id,

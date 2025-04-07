@@ -28,7 +28,9 @@ public class GetByCompanyIdJobPostingsQuery : IRequest<List<GetByCompanyIdJobPos
 
         public async Task<List<GetByCompanyIdJobPostingsResponseDto>> Handle(GetByCompanyIdJobPostingsQuery request, CancellationToken cancellationToken)
         {
-            var cachedData = await _redisService.GetDataAsync<List<GetByCompanyIdJobPostingsResponseDto>>($"jobpostings_{request.CompanyId}");
+            //$"jobpostings_{request.CompanyId}"
+            string cacheKey = $"jobpostings({request.CompanyId})";
+            var cachedData = await _redisService.GetDataAsync<List<GetByCompanyIdJobPostingsResponseDto>>(cacheKey);
             if (cachedData != null)
             {
                 return cachedData;
@@ -47,7 +49,7 @@ public class GetByCompanyIdJobPostingsQuery : IRequest<List<GetByCompanyIdJobPos
 
             var responses = _mapper.Map<List<GetByCompanyIdJobPostingsResponseDto>>(jobPostings);
 
-            await _redisService.AddDataAsync($"jobpostings_{request.CompanyId}", responses);
+            await _redisService.AddDataAsync(cacheKey, responses);
 
             return responses;
         }

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getJobPostingInfo } from "../services/jobPostingService";
+import { getJobPostingInfo } from "../services/JobPostingService";
 import { getAllCities } from "../services/cityService";
 import { getAllCompanies } from "../services/CompanyService";
-import { getAllCompetences } from "../services/competenceService";
+import { getAllCompetences } from "../services/CompetenceService";
 import { applyToJob } from "../services/ApplicationService";
 import Navbar from "../components/Navbar";
 import { Building2, MapPin, Calendar, CheckCircle2, XCircle, Briefcase, GraduationCap, Clock, FileText } from 'lucide-react';
+import ErrorMessage from "../components/Messages";
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -118,6 +119,7 @@ export default function JobDetail() {
           <span>Başvuru sırasında bir hata oluştu.</span>
         </div>
       </div>
+      
 
       <div className="container mx-auto pt-24 px-4 pb-12">
         <div className="max-w-4xl mx-auto">
@@ -176,17 +178,19 @@ export default function JobDetail() {
                 Aranan Yetenekler
               </h2>
               <div className="flex flex-wrap gap-2">
-                {job.jobPostingCompetences?.map((c) => {
-                  const comp = competences.find((x) => x.id === c.id);
-                  return (
-                    <span
-                      key={c.id}
-                      className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors"
-                    >
-                      {comp?.name || "Bilinmeyen Yetenek"}
-                    </span>
-                  );
-                })}
+              {job.jobPostingCompetences.map((skillObj) => {
+                      const skill = competences.find(
+                        (c) => c.id === skillObj.id
+                      );
+                      return (
+                        <span
+                          key={skillObj.id}
+                          className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                        >
+                          {skill?.name || "Bilinmeyen Yetenek"}
+                        </span>
+                      );
+                    })}
               </div>
             </div>
 

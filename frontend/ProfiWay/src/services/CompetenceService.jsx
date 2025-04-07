@@ -30,3 +30,24 @@ export async function getAllCompetences(user) {
     }
   }
 }
+
+
+
+export async function getCompetenceInfo(user, competenceId) {
+  try {
+    const response = await axios.get(`${API_URL}/api/Competences/getbyid?=${competenceId}`, {
+      headers: { Authorization: `Bearer ${user.token}` },
+    });
+
+    return response.data;
+
+  } catch (error) {
+    if (error.response && error.response.status === 404) { 
+      console.warn("Yetkinlik bilgileri bulunamadı (404).");
+      return [];
+    } else {
+      console.error("Yetkinlikler alınırken bir hata oluştu:", error);
+      return [];
+    }
+  }
+}

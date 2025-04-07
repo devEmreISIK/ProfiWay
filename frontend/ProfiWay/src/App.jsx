@@ -11,6 +11,7 @@ import JobPostingUpdatePage from './pages/job_posting_update_page';
 import JobDetail from './pages/job_detail_page';
 import JobApplications from './pages/job_applications_page';
 import MyApplicationsPage from './pages/my_applications_page';
+import CareerGuide from './pages/career_guide_page';
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path='/jobs/:id' element={<JobDetail/>}/>
           <Route path="/job-applications/:jobId" element={<JobApplications />} />
           <Route path="/myapplications" element={<MyApplicationsPage />} />
+          <Route path="/career-guide" element={<CareerGuide />} />
         </Routes>
      </Router>
     </AuthProvider>
