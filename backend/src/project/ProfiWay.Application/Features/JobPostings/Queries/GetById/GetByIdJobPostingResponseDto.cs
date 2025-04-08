@@ -1,7 +1,7 @@
 ﻿
 namespace ProfiWay.Application.Features.JobPostings.Queries.GetById;
 
-public class GetByIdJobPostingsResponseDto
+public class GetByIdJobPostingResponseDto
 {
     public int Id { get; set; }
     public string Title { get; set; }

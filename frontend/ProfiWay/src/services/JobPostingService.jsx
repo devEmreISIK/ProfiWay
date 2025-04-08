@@ -82,17 +82,17 @@ export async function addJobPosting(user, jobData) {
 }
 
 
-export async function updateJobPosting(user, jobPosting) {
+export async function updateJobPosting(user, jobData) {
   try {
     const response = await axios.put(
       `${API_URL}/api/JobPostings/update`,
       {
-        id: jobPosting.id,
-        title: jobPosting.title,
-        description: jobPosting.description,
-        companyId: jobPosting.companyId,
-        cityId: jobPosting.cityId,
-        competenceIds: jobPosting.competenceIds || [], // Eğer boş olabilir diyorsan
+        id: jobData.id,
+        title: jobData.title,
+        description: jobData.description,
+        companyId: jobData.companyId,
+        cityId: jobData.cityId,
+        competenceIds: jobData.competenceIds || [], // Eğer boş olabilir diyorsan
       },
       {
         headers: { Authorization: `Bearer ${user.token}` },

@@ -1,41 +1,39 @@
 ﻿using AutoMapper;
+using Core.Application.Pipelines.Caching;
 using Core.Application.Pipelines.Performance;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Features.JobPostings.Queries.GetList;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.JobPostings.Constants;
 using ProfiWay.Application.Services.Repositories;
-using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.JobPostings.Queries.GetByUserId;
 
-public class GetByCompanyIdJobPostingsQuery : IRequest<List<GetByCompanyIdJobPostingsResponseDto>>, IPerformanceRequest
+public class GetByCompanyIdJobPostingsQuery : IRequest<List<GetByCompanyIdJobPostingsResponseDto>>, IPerformanceRequest, ICachableRequest, ITransactionalRequest
 {
     public int CompanyId { get; set; }
+
+    public string? CacheKey => $"GetJobPostingsByCompanyId({CompanyId})";
+
+    public bool BypassCache => false;
+
+    public string? CacheGroupKey => JobPostingConstants.JobPostingsCacheGroup;
+
+    public TimeSpan? SlidingExpiration => null;
 
     public class GetByUserIdJobPostingsQueryHandler : IRequestHandler<GetByCompanyIdJobPostingsQuery, List<GetByCompanyIdJobPostingsResponseDto>>
     {
         private readonly IJobPostingRepository _jobPostingRepository;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
 
-        public GetByUserIdJobPostingsQueryHandler(IJobPostingRepository jobPostingRepository, IMapper mapper, IRedisService redisService)
+        public GetByUserIdJobPostingsQueryHandler(IJobPostingRepository jobPostingRepository, IMapper mapper)
         {
             _jobPostingRepository = jobPostingRepository;
             _mapper = mapper;
-            _redisService = redisService;
         }
 
         public async Task<List<GetByCompanyIdJobPostingsResponseDto>> Handle(GetByCompanyIdJobPostingsQuery request, CancellationToken cancellationToken)
         {
-            //$"jobpostings_{request.CompanyId}"
-            string cacheKey = $"jobpostings({request.CompanyId})";
-            var cachedData = await _redisService.GetDataAsync<List<GetByCompanyIdJobPostingsResponseDto>>(cacheKey);
-            if (cachedData != null)
-            {
-                return cachedData;
-            }
-
             var jobPostings = await _jobPostingRepository.GetAllAsync(
                 x => x.CompanyId == request.CompanyId, 
                 enableTracking: false,
@@ -48,8 +46,6 @@ public class GetByCompanyIdJobPostingsQuery : IRequest<List<GetByCompanyIdJobPos
             }
 
             var responses = _mapper.Map<List<GetByCompanyIdJobPostingsResponseDto>>(jobPostings);
-
-            await _redisService.AddDataAsync(cacheKey, responses);
 
             return responses;
         }

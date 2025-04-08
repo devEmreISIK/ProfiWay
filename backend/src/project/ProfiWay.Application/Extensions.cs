@@ -8,6 +8,7 @@ using ProfiWay.Application.Services.JwtServices;
 using ProfiWay.Application.Services.RedisServices;
 using FluentValidation;
 using System.Reflection;
+using Core.Application.Pipelines.Caching;
 
 namespace ProfiWay.Application;
 
@@ -34,8 +35,10 @@ public static class Extensions
             opt.AddOpenBehavior(typeof(AuthorizationPipeline<,>));
             opt.AddOpenBehavior(typeof(ValidationPipeline<,>));
             opt.AddOpenBehavior(typeof(LoggingPipeline<,>));
-            
-            
+            opt.AddOpenBehavior(typeof(CacheRemovePipeline<,>));
+            opt.AddOpenBehavior(typeof(AddCachePipeline<,>));
+
+
         });
 
         return services;

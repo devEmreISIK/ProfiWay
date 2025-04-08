@@ -18,7 +18,8 @@ public class ResumeAddCommand : IRequest<Resume>
     public string? CvFilePath { get; set; }
     public string UserId { get; set; }
     public List<int> CompetenceIds { get; set; }
-    
+
+    public string[] Roles => ["JobSeeker"];
 
     public class ResumeAddCommandHandler : IRequestHandler<ResumeAddCommand, Resume>
     {

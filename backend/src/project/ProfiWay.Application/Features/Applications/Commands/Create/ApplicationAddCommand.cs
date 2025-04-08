@@ -13,6 +13,7 @@ public class ApplicationAddCommand : IRequest<MyApplication>
 {
     public string UserId { get; set; }
     public int JobPostingId { get; set; }
+    public string[] Roles => ["JobSeeker"];
 
     public class ApplicationAddCommandHandler : IRequestHandler<ApplicationAddCommand, MyApplication>
     {

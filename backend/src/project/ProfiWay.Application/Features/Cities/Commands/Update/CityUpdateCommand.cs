@@ -13,6 +13,7 @@ public class CityUpdateCommand : IRequest<string>
     public int Id { get; set; }
     public string Name { get; set; }
 
+    public string[] Roles => ["Admin"];
     public class CityUpdateCommandHandler : IRequestHandler<CityUpdateCommand, string>
     {
         private readonly ICityRepository _cityRepository;

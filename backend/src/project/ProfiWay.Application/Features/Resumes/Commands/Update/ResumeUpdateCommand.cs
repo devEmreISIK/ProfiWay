@@ -19,6 +19,7 @@ public class ResumeUpdateCommand : IRequest<Resume>
     public string Education { get; set; }
     public string? CvFilePath { get; set; }
     public List<int> CompetenceIds { get; set; } = new();
+    public string[] Roles => ["JobSeeker"];
 
     public class ResumeUpdateCommandHandler : IRequestHandler<ResumeUpdateCommand, Resume>
     {

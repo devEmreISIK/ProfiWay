@@ -12,6 +12,8 @@ public class RoleUpdateCommand : IRequest<string>
     public string Id { get; set; }
     public string Name { get; set; }
 
+    public string[] Roles => ["Admin"];
+
     public class RoleUpdateCommandHandler : IRequestHandler<RoleUpdateCommand, string>
     {
         private readonly RoleManager<IdentityRole> _roleManager;

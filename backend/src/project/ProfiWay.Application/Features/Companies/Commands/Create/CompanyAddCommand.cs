@@ -14,7 +14,7 @@ public class CompanyAddCommand : IRequest<Company>
     public string Description { get; set; }
     public string UserId { get; set; }
 
-
+    public string[] Roles => ["Company"];
     public class CompanyAddCommandHandler : IRequestHandler<CompanyAddCommand, Company>
     {
         private readonly ICompanyRepository _companyRepository;

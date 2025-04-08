@@ -6,6 +6,7 @@ import { getAllCompetences } from "../services/CompetenceService";
 import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
 import { Briefcase, MapPin, FileText } from "lucide-react";
+import Navbar from "../components/Navbar";
 
 const JobPostingUpdatePage = () => {
   const { user } = useAuth();
@@ -100,8 +101,7 @@ const JobPostingUpdatePage = () => {
           cityId: Number(formData.cityId),
           competenceIds: selectedCompetences.map((comp) => Number(comp.value)),
         };
-
-        await updateJobPosting(Number(jobPostingId), jobData);  
+        await updateJobPosting(user, jobData);  
 
         alert("İş ilanı başarıyla güncellendi!");
         navigate("/dashboard");  
@@ -114,11 +114,13 @@ const JobPostingUpdatePage = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // This will take you to the previous page in history
+    navigate(-1); 
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <Navbar/>
+      <div className="container mx-auto pt-20 px-45 pb-15">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-xl shadow-sm p-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">İş İlanını Güncelle</h1>
@@ -213,6 +215,7 @@ const JobPostingUpdatePage = () => {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );

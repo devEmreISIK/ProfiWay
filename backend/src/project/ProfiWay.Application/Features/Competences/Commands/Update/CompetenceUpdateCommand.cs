@@ -13,6 +13,7 @@ public class CompetenceUpdateCommand : IRequest<Competence>
     public int Id { get; set; }
     public string Name { get; set; }
 
+    public string[] Roles => ["Admin"];
     public class CompetenceUpdateCommandHandler : IRequestHandler<CompetenceUpdateCommand, Competence>
     {
         private readonly ICompetenceRepository _competenceRepository;

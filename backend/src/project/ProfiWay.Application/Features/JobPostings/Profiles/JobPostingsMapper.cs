@@ -18,7 +18,7 @@ public class JobPostingsMapper : Profile
         CreateMap<JobPostingAddCommand, JobPosting>();
         CreateMap<JobPostingUpdateCommand, JobPosting>();
         CreateMap<JobPosting, GetListJobPostingsResponseDto>();
-        CreateMap<JobPosting, GetByIdJobPostingsResponseDto>();
+        CreateMap<JobPosting, GetByIdJobPostingResponseDto>();
         CreateMap<JobPosting, GetByCompanyIdJobPostingsResponseDto>();
         CreateMap<JobPostingCompetence, JobPostingCompetenceDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompetenceId));

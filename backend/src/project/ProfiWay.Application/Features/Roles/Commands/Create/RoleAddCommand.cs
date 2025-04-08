@@ -11,6 +11,8 @@ public class RoleAddCommand : IRequest<string>
 {
     public string Name { get; set; }
 
+    public string[] Roles => ["Admin"];
+
     public class RoleAddCommandHandler : IRequestHandler<RoleAddCommand, string>
     {
         private readonly RoleManager<IdentityRole> _roleManager;

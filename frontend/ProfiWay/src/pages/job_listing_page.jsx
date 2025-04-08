@@ -4,7 +4,7 @@ import { Search, Building2, MapPin, Briefcase } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import { getFilteredJobPostings } from "../services/JobPostingService";
-import { getAllCities } from "../services/cityService";
+import { getAllCities } from "../services/CityService";
 import { getAllCompetences } from "../services/CompetenceService";
 import { getAllCompanies } from "../services/CompanyService";
 

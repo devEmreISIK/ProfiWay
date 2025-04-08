@@ -10,6 +10,7 @@ namespace ProfiWay.Application.Features.Competences.Commands.Create;
 public class CompetenceAddCommand : IRequest<List<Competence>>
 {
     public List<string> Names { get; set; }
+    public string[] Roles => ["Admin"];
 
     public class CompetenceAddCommandHandler : IRequestHandler<CompetenceAddCommand, List<Competence>>
     {

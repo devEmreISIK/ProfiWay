@@ -1,15 +1,18 @@
 ﻿
 
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.JobPostings.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.JobPostings.Commands.Create;
 
-public class JobPostingAddCommand : IRequest<JobPosting>
+public class JobPostingAddCommand : IRequest<JobPosting>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public string Title { get; set; }
     public string Description { get; set; }
@@ -17,19 +20,23 @@ public class JobPostingAddCommand : IRequest<JobPosting>
     public int CityId { get; set; }
     public List<int> CompetenceIds { get; set; }
 
+    public string[] Roles => ["Company", "Admin"];
+
+    public string? CacheKey => null;
+    public bool ByPassCache => false;
+    public string? CacheGroupKey => JobPostingConstants.JobPostingsCacheGroup;
+
     public class JobPostingAddCommandHandler : IRequestHandler<JobPostingAddCommand, JobPosting>
     {
         private readonly IJobPostingRepository _jobPostingRepository;
         private readonly IMapper _mapper;
         private readonly ICompetenceRepository _competenceRepository;
-        private readonly IRedisService _redisService;
 
-        public JobPostingAddCommandHandler(IJobPostingRepository jobPostingRepository, IMapper mapper, ICompetenceRepository competenceRepository, IRedisService redisService)
+        public JobPostingAddCommandHandler(IJobPostingRepository jobPostingRepository, IMapper mapper, ICompetenceRepository competenceRepository)
         {
             _jobPostingRepository = jobPostingRepository;
             _mapper = mapper;
             _competenceRepository = competenceRepository;
-            _redisService = redisService;
         }
 
         public async Task<JobPosting> Handle(JobPostingAddCommand request, CancellationToken cancellationToken)
@@ -51,8 +58,7 @@ public class JobPostingAddCommand : IRequest<JobPosting>
                 JobPostingId = jobPosting.Id
             }).ToList();
 
-            await _jobPostingRepository.UpdateAsync(jobPosting, cancellationToken);
-            await _redisService.RemoveDataAsync("jobpostings");
+            await _jobPostingRepository.AddAsync(jobPosting, cancellationToken);
 
             return jobPosting;
         }

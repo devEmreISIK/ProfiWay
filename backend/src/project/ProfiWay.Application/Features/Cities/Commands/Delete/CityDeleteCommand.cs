@@ -11,6 +11,7 @@ namespace ProfiWay.Application.Features.Cities.Commands.Delete;
 public class CityDeleteCommand : IRequest<string>
 {
     public int Id { get; set; }
+    public string[] Roles => ["Admin"];
 
     public class CityDeleteCommandHandler : IRequestHandler<CityDeleteCommand, string>
     {

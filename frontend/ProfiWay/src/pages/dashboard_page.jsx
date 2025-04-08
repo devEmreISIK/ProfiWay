@@ -120,14 +120,18 @@ export default function Dashboard() {
   useEffect(() => {
     // FETCH JOBPOSTING INFO
     async function fetchJobPostingsInfo() {
-      const data = await getJobPostingsInfo(user, companyInfoData.companyId);
-      console.log("Fetched job postings:", data);
-      console.log("Company Id: ", companyInfoData.companyId)
-      setJobPostingsData(data);
+      if (companyInfoData?.companyId) {
+        const data = await getJobPostingsInfo(user, companyInfoData.companyId);
+        console.log("Fetched job postings:", data);
+        console.log("Company Id: ", companyInfoData.companyId)
+        setJobPostingsData(data);
+      }
     }
     //fetchJobPostingsInfo();
 
-    if (user?.role === "Company") {
+    console.log("job data: ",user.token);
+
+    if (user?.role === "Company" || user?.role === "Admin") {
       fetchJobPostingsInfo()
     }
   },[companyInfoData?.companyId, user, navigate]);

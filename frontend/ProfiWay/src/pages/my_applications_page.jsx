@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import ApplicationStatus from '../components/applications/ApplicationStatus';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/applications/EmptyState';
-import ErrorMessage from '../components/ErrorMessage';
+import ErrorMessage from '../components/Messages';
 import { Search, ArrowUpDown } from 'lucide-react';
 
 function MyApplicationsPage() {

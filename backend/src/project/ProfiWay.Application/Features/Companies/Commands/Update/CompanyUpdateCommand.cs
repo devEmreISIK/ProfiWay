@@ -16,6 +16,7 @@ public class CompanyUpdateCommand : IRequest<Company>
     public string Industry { get; set; }
     public string Description { get; set; }
 
+    public string[] Roles => ["Company"];
     public class CompanyUpdateCommandHandler : IRequestHandler<CompanyUpdateCommand, Company>
     {
         private readonly ICompanyRepository _companyRepository;

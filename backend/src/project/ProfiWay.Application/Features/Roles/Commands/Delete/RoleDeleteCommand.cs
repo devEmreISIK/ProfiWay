@@ -10,6 +10,8 @@ public class RoleDeleteCommand : IRequest<string>
 {
     public string Id { get; set; }
 
+    public string[] Roles => ["Admin"];
+
     public class RoleDeleteCommandHandler : IRequestHandler<RoleDeleteCommand, string>
     {
         private readonly RoleManager<IdentityRole> _roleManager;

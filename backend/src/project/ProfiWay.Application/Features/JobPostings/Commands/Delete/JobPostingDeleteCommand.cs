@@ -1,26 +1,31 @@
-﻿
-
+﻿using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.JobPostings.Constants;
 using ProfiWay.Application.Services.Repositories;
-using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.JobPostings.Commands.Delete;
 
-public class JobPostingDeleteCommand : IRequest<string>
+public class JobPostingDeleteCommand : IRequest<string>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public int Id { get; set; }
+
+    public string[] Roles => ["Company", "Admin"];
+
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+    public string? CacheGroupKey => JobPostingConstants.JobPostingsCacheGroup;
 
     public class JobPostingDeleteCommandHandler : IRequestHandler<JobPostingDeleteCommand, string>
     {
         private readonly IJobPostingRepository _jobPostingRepository;
-        private readonly IRedisService _redisService;
 
-        public JobPostingDeleteCommandHandler(IJobPostingRepository jobPostingRepository, IRedisService redisService)
+        public JobPostingDeleteCommandHandler(IJobPostingRepository jobPostingRepository)
         {
             _jobPostingRepository = jobPostingRepository;
-            _redisService = redisService;
         }
 
         public async Task<string> Handle(JobPostingDeleteCommand request, CancellationToken cancellationToken)
@@ -33,7 +38,6 @@ public class JobPostingDeleteCommand : IRequest<string>
             }
 
             await _jobPostingRepository.DeleteAsync(jobPosting, cancellationToken);
-            await _redisService.RemoveDataAsync("jobpostings");
 
             return "Success!";
         }

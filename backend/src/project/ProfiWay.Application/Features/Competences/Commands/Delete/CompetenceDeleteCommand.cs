@@ -10,6 +10,7 @@ public class CompetenceDeleteCommand : IRequest<string>
 {
     public int Id { get; set; }
 
+    public string[] Roles => ["Admin"];
     public class CompetenceDeleteCommandHandler : IRequestHandler<CompetenceDeleteCommand, string>
     {
         private readonly ICompetenceRepository _competenceRepository;

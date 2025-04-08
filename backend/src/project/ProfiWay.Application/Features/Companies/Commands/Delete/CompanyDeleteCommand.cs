@@ -13,6 +13,7 @@ public class CompanyDeleteCommand : IRequest<string>
 {
     public int Id { get; set; }
 
+    public string[] Roles => ["Admin"];
     public class CompanyDeleteCommandHandler : IRequestHandler<CompanyDeleteCommand, string>
     {
         private readonly ICompanyRepository _companyRepository;
