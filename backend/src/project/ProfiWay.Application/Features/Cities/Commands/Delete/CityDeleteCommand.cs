@@ -1,27 +1,34 @@
 ﻿
 
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
+using ProfiWay.Application.Features.Cities.Constants;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
 
 namespace ProfiWay.Application.Features.Cities.Commands.Delete;
 
-public class CityDeleteCommand : IRequest<string>
+public class CityDeleteCommand : IRequest<string>, IRoleExists, ICacheRemoverRequest, ITransactionalRequest
 {
     public int Id { get; set; }
     public string[] Roles => ["Admin"];
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => CityConstants.CitiesCacheGroup;
 
     public class CityDeleteCommandHandler : IRequestHandler<CityDeleteCommand, string>
     {
         private readonly ICityRepository _cityRepository;
-        private readonly IRedisService _redisService;
 
-        public CityDeleteCommandHandler(ICityRepository cityRepository, IRedisService redisService)
+        public CityDeleteCommandHandler(ICityRepository cityRepository)
         {
             _cityRepository = cityRepository;
-            _redisService = redisService;
         }
 
         public async Task<string> Handle(CityDeleteCommand request, CancellationToken cancellationToken)
@@ -34,8 +41,6 @@ public class CityDeleteCommand : IRequest<string>
             }
 
             await _cityRepository.DeleteAsync(city, cancellationToken);
-
-            await _redisService.RemoveDataAsync("cities");
 
             return "City deleted";
         }

@@ -1,24 +1,30 @@
 ﻿
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
+using ProfiWay.Application.Features.Applications.Constants;
 using ProfiWay.Application.Services.RedisServices;
 using ProfiWay.Application.Services.Repositories;
 
 namespace ProfiWay.Application.Features.Applications.Commands.Delete;
 
-public class ApplicationDeleteCommand : IRequest<string>
+public class ApplicationDeleteCommand : IRequest<string>, ICacheRemoverRequest, ITransactionalRequest
 {
     public int Id { get; set; }
+    public string? CacheKey => null;
 
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => ApplicationConstants.ApplicationsCacheGroup;
     public class ApplicationDeleteCommandHandler : IRequestHandler<ApplicationDeleteCommand, string>
     {
         private readonly IApplicationRepository _applicationRepository;
-        private readonly IRedisService _redisService;
 
-        public ApplicationDeleteCommandHandler(IApplicationRepository applicationRepository, IRedisService redisService)
+        public ApplicationDeleteCommandHandler(IApplicationRepository applicationRepository)
         {
             _applicationRepository = applicationRepository;
-            _redisService = redisService;
         }
 
         public async Task<string> Handle(ApplicationDeleteCommand request, CancellationToken cancellationToken)
@@ -31,7 +37,6 @@ public class ApplicationDeleteCommand : IRequest<string>
             }
 
             await _applicationRepository.DeleteAsync(application, cancellationToken);
-            await _redisService.RemoveDataAsync("applications");
 
             return "Success!";
         }

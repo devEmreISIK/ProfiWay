@@ -1,24 +1,29 @@
 ﻿
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Competences.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Competences.Commands.Create;
 
-public class CompetenceAddCommand : IRequest<List<Competence>>
+public class CompetenceAddCommand : IRequest<List<Competence>>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public List<string> Names { get; set; }
     public string[] Roles => ["Admin"];
+    public string? CacheKey => null;
 
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => CompetenceConstants.CompetencesCacheGroup;
     public class CompetenceAddCommandHandler : IRequestHandler<CompetenceAddCommand, List<Competence>>
     {
-        private readonly IRedisService _redisService;
         private readonly ICompetenceRepository _competenceRepository;
-        public CompetenceAddCommandHandler(IRedisService redisService, ICompetenceRepository competenceRepository)
+        public CompetenceAddCommandHandler(ICompetenceRepository competenceRepository)
         {
-            _redisService = redisService;
             _competenceRepository = competenceRepository;
         }
 
@@ -38,7 +43,6 @@ public class CompetenceAddCommand : IRequest<List<Competence>>
             }
 
             await _competenceRepository.AddRangeAsync(newCompetences, cancellationToken);
-            await _redisService.RemoveDataAsync("competences");
 
             return newCompetences;
         }

@@ -1,30 +1,36 @@
 ﻿
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Cities.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Cities.Commands.Update;
 
-public class CityUpdateCommand : IRequest<string>
+public class CityUpdateCommand : IRequest<string>, IRoleExists, ICacheRemoverRequest, ITransactionalRequest
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => CityConstants.CitiesCacheGroup;
 
     public string[] Roles => ["Admin"];
     public class CityUpdateCommandHandler : IRequestHandler<CityUpdateCommand, string>
     {
         private readonly ICityRepository _cityRepository;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
 
-        public CityUpdateCommandHandler(ICityRepository cityRepository, IMapper mapper, IRedisService redisService)
+        public CityUpdateCommandHandler(ICityRepository cityRepository, IMapper mapper)
         {
             _cityRepository = cityRepository;
             _mapper = mapper;
-            _redisService = redisService;
         }
         public async Task<string> Handle(CityUpdateCommand request, CancellationToken cancellationToken)
         {
@@ -40,8 +46,6 @@ public class CityUpdateCommand : IRequest<string>
             city.Name = _city.Name ?? city.Name;
 
             await _cityRepository.UpdateAsync(city, cancellationToken);
-
-            await _redisService.RemoveDataAsync("cities");
 
             return "City updated.";
         }

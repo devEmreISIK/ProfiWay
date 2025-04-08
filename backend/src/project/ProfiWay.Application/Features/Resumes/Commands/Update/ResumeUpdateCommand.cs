@@ -1,16 +1,18 @@
 ﻿
 
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Resumes.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Resumes.Commands.Update;
 
-public class ResumeUpdateCommand : IRequest<Resume>
+public class ResumeUpdateCommand : IRequest<Resume>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -20,20 +22,23 @@ public class ResumeUpdateCommand : IRequest<Resume>
     public string? CvFilePath { get; set; }
     public List<int> CompetenceIds { get; set; } = new();
     public string[] Roles => ["JobSeeker"];
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => ResumeConstants.ResumesCacheGroup;
 
     public class ResumeUpdateCommandHandler : IRequestHandler<ResumeUpdateCommand, Resume>
     {
         private readonly IResumeRepository _resumeRepository;
         private readonly ICompetenceRepository _competenceRepository;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
 
-        public ResumeUpdateCommandHandler(IResumeRepository resumeRepository, ICompetenceRepository competenceRepository, IMapper mapper, IRedisService redisService)
+        public ResumeUpdateCommandHandler(IResumeRepository resumeRepository, ICompetenceRepository competenceRepository, IMapper mapper)
         {
             _resumeRepository = resumeRepository;
             _competenceRepository = competenceRepository;
             _mapper = mapper;
-            _redisService = redisService;
         }
 
         public async Task<Resume> Handle(ResumeUpdateCommand request, CancellationToken cancellationToken)
@@ -44,8 +49,6 @@ public class ResumeUpdateCommand : IRequest<Resume>
             {
                 throw new NotFoundException("Resume not found!");
             }
-
-            //resume.ResumeCompetences.RemoveAll(x => x.ResumeId == request.Id);
 
             resume.Id = request.Id;
             resume.Title = request.Title ?? resume.Title;
@@ -72,8 +75,6 @@ public class ResumeUpdateCommand : IRequest<Resume>
             }).ToList();
 
             await _resumeRepository.UpdateAsync(resume, cancellationToken);
-
-            await _redisService.RemoveDataAsync("resumes");
 
             return resume;
         }

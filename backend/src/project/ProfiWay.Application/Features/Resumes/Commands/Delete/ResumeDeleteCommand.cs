@@ -1,24 +1,28 @@
 ﻿
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Resumes.Constants;
 using ProfiWay.Application.Services.Repositories;
 
 namespace ProfiWay.Application.Features.Resumes.Commands.Delete;
 
-public class ResumeDeleteCommand : IRequest<string>
+public class ResumeDeleteCommand : IRequest<string>, ICacheRemoverRequest, ITransactionalRequest
 {
     public int Id { get; set; }
+
+    public string? CacheKey => null;
+    public bool ByPassCache => false;
+    public string? CacheGroupKey => ResumeConstants.ResumesCacheGroup;
 
     public class ResumeDeleteCommandHandler : IRequestHandler<ResumeDeleteCommand, string>
     {
         private readonly IResumeRepository _resumeRepository;
-        private readonly IRedisService _redisService;
 
-        public ResumeDeleteCommandHandler(IResumeRepository resumeRepository, IRedisService redisService)
+        public ResumeDeleteCommandHandler(IResumeRepository resumeRepository)
         {
             _resumeRepository = resumeRepository;
-            _redisService = redisService;
         }
         public async Task<string> Handle(ResumeDeleteCommand request, CancellationToken cancellationToken)
         {
@@ -30,7 +34,6 @@ public class ResumeDeleteCommand : IRequest<string>
             }
 
             await _resumeRepository.DeleteAsync(resume, cancellationToken);
-            await _redisService.RemoveDataAsync("resumes");
 
             return "Success!";
 

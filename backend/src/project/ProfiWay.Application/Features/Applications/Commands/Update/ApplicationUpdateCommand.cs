@@ -1,32 +1,35 @@
-﻿
-
-using AutoMapper;
+﻿using AutoMapper;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Applications.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 using MyApplication = ProfiWay.Domain.Entities.Application;
 
 namespace ProfiWay.Application.Features.Applications.Commands.Update;
 
-public class ApplicationUpdateCommand : IRequest<MyApplication>
+public class ApplicationUpdateCommand : IRequest<MyApplication>, ICacheRemoverRequest, ITransactionalRequest
 {
     public int Id { get; set; }
     public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => ApplicationConstants.ApplicationsCacheGroup;
 
 
     public class ApplicationUpdateCommandHandler : IRequestHandler<ApplicationUpdateCommand, MyApplication>
     {
         private readonly IApplicationRepository _applicationRepository;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
 
-        public ApplicationUpdateCommandHandler(IApplicationRepository applicationRepository, IMapper mapper, IRedisService redisService)
+        public ApplicationUpdateCommandHandler(IApplicationRepository applicationRepository, IMapper mapper)
         {
             _applicationRepository = applicationRepository;
             _mapper = mapper;
-            _redisService = redisService;
         }
 
         public async Task<MyApplication> Handle(ApplicationUpdateCommand request, CancellationToken cancellationToken)
@@ -43,7 +46,6 @@ public class ApplicationUpdateCommand : IRequest<MyApplication>
             application.Status = _application.Status;
 
             await _applicationRepository.UpdateAsync(application, cancellationToken);
-            await _redisService.RemoveDataAsync("applications");
 
             return application;
         }

@@ -1,28 +1,31 @@
 ﻿
-
-using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Applications.Constants;
 using ProfiWay.Application.Services.Repositories;
-using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Companies.Commands.Delete;
 
-public class CompanyDeleteCommand : IRequest<string>
+public class CompanyDeleteCommand : IRequest<string>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public int Id { get; set; }
 
     public string[] Roles => ["Admin"];
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => ApplicationConstants.ApplicationsCacheGroup;
     public class CompanyDeleteCommandHandler : IRequestHandler<CompanyDeleteCommand, string>
     {
         private readonly ICompanyRepository _companyRepository;
-        private readonly IRedisService _redisService;
 
-        public CompanyDeleteCommandHandler(ICompanyRepository companyRepository, IRedisService redisService)
+        public CompanyDeleteCommandHandler(ICompanyRepository companyRepository)
         {
             _companyRepository = companyRepository;
-            _redisService = redisService;
         }
 
         public async Task<string> Handle(CompanyDeleteCommand request, CancellationToken cancellationToken)
@@ -35,8 +38,6 @@ public class CompanyDeleteCommand : IRequest<string>
             }
 
             await _companyRepository.DeleteAsync(company, cancellationToken: cancellationToken);
-
-            await _redisService.RemoveDataAsync("companies");
 
             return "Company deleted.";
            

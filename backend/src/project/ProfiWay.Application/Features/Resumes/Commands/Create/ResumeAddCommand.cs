@@ -1,15 +1,18 @@
 ﻿
 
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Resumes.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Resumes.Commands.Create;
 
-public class ResumeAddCommand : IRequest<Resume>
+public class ResumeAddCommand : IRequest<Resume>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public string Title { get; set; }
     public string Summary { get; set; }
@@ -21,19 +24,23 @@ public class ResumeAddCommand : IRequest<Resume>
 
     public string[] Roles => ["JobSeeker"];
 
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => ResumeConstants.ResumesCacheGroup;
+
     public class ResumeAddCommandHandler : IRequestHandler<ResumeAddCommand, Resume>
     {
         private readonly IResumeRepository _resumeRepository;
         private readonly IMapper _mapper;
         private readonly ICompetenceRepository _competenceRepository;
-        private readonly IRedisService _redisService;
 
-        public ResumeAddCommandHandler(IResumeRepository resumeRepository, IMapper mapper, ICompetenceRepository competenceRepository, IRedisService redisService)
+        public ResumeAddCommandHandler(IResumeRepository resumeRepository, IMapper mapper, ICompetenceRepository competenceRepository)
         {
             _resumeRepository = resumeRepository;
             _mapper = mapper;
             _competenceRepository = competenceRepository;
-            _redisService = redisService;
         }
 
         public async Task<Resume> Handle(ResumeAddCommand request, CancellationToken cancellationToken)
@@ -56,7 +63,6 @@ public class ResumeAddCommand : IRequest<Resume>
             }).ToList();
 
             await _resumeRepository.UpdateAsync(resume, cancellationToken);
-            await _redisService.RemoveDataAsync("resumes");
 
             return resume;
         }

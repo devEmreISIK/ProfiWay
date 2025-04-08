@@ -17,7 +17,7 @@ public class ResumesMapper : Profile
         CreateMap<ResumeAddCommand, Resume>();
         CreateMap<ResumeUpdateCommand, Resume>();
         CreateMap<Resume, GetListResumeResponseDto>();
-        CreateMap<Resume, GetByIdResumeResponseDto>();
+        CreateMap<Resume, GetResumeByUserIdResponseDto>();
         CreateMap<ResumeCompetence, ResumeCompetenceDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompetenceId))
             .ForMember(dest => dest.CompetenceName, opt => opt.MapFrom(src => src.CompetenceName));

@@ -49,7 +49,6 @@ public class GetByIdJobPostingQuery : IRequest<GetByIdJobPostingResponseDto>, IP
 
             var response = _mapper.Map<GetByIdJobPostingResponseDto>(jobPosting);
 
-
             return response;
         }
     }

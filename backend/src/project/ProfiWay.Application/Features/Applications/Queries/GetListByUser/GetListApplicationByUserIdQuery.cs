@@ -1,44 +1,38 @@
 ﻿
 
 using AutoMapper;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Applications.Constants;
 using ProfiWay.Application.Services.Repositories;
 
 namespace ProfiWay.Application.Features.Applications.Queries.GetListByUser;
 
-public class GetListApplicationByUserIdQuery : IRequest<List<GetListApplicationByUserIdResponseDto>>
+public class GetListApplicationByUserIdQuery : IRequest<List<GetListApplicationByUserIdResponseDto>>, ICachableRequest, ITransactionalRequest
 {
     public string UserId { get; set; }
+    public string? CacheKey => $"applications_byuserid({UserId})";
+    public bool BypassCache => false;
+    public string? CacheGroupKey => ApplicationConstants.ApplicationsCacheGroup;
+    public TimeSpan? SlidingExpiration => null;
 
     public class GetListApplicationByUserIdQueryHandler : IRequestHandler<GetListApplicationByUserIdQuery, List<GetListApplicationByUserIdResponseDto>>
     {
         private readonly IApplicationRepository _applicationRepository;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
 
-        public GetListApplicationByUserIdQueryHandler(IApplicationRepository applicationRepository, IMapper mapper, IRedisService redisService)
+        public GetListApplicationByUserIdQueryHandler(IApplicationRepository applicationRepository, IMapper mapper)
         {
             _applicationRepository = applicationRepository;
             _mapper = mapper;
-            _redisService = redisService;
         }
         public async Task<List<GetListApplicationByUserIdResponseDto>> Handle(GetListApplicationByUserIdQuery request, CancellationToken cancellationToken)
         {
-            string cacheKey = $"applications({request.UserId})";
-
-            var cachedData = await _redisService.GetDataAsync<List<GetListApplicationByUserIdResponseDto>>(cacheKey);
-
-            if (cachedData is not null)
-            {
-                return cachedData;
-            }
 
             List<ProfiWay.Domain.Entities.Application> applications = await _applicationRepository.GetAllAsync(x => x.UserId == request.UserId);
 
             var responses = _mapper.Map<List<GetListApplicationByUserIdResponseDto>>(applications);
-
-            await _redisService.AddDataAsync(cacheKey, responses);
 
             return responses;
         }

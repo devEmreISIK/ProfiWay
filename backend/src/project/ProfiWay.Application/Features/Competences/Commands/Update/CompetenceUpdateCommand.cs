@@ -1,30 +1,36 @@
 ﻿
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Caching;
+using Core.Application.Pipelines.Transactional;
 using Core.CrossCuttingConcerns.Exceptions;
 using MediatR;
-using ProfiWay.Application.Services.RedisServices;
+using ProfiWay.Application.Features.Competences.Constants;
 using ProfiWay.Application.Services.Repositories;
 using ProfiWay.Domain.Entities;
 
 namespace ProfiWay.Application.Features.Competences.Commands.Update;
 
-public class CompetenceUpdateCommand : IRequest<Competence>
+public class CompetenceUpdateCommand : IRequest<Competence>, ICacheRemoverRequest, IRoleExists, ITransactionalRequest
 {
     public int Id { get; set; }
     public string Name { get; set; }
 
     public string[] Roles => ["Admin"];
+    public string? CacheKey => null;
+
+    public bool ByPassCache => false;
+
+    public string? CacheGroupKey => CompetenceConstants.CompetencesCacheGroup;
     public class CompetenceUpdateCommandHandler : IRequestHandler<CompetenceUpdateCommand, Competence>
     {
         private readonly ICompetenceRepository _competenceRepository;
         private readonly IMapper _mapper;
-        private readonly IRedisService _redisService;
 
-        public CompetenceUpdateCommandHandler(ICompetenceRepository competenceRepository, IMapper mapper, IRedisService redisService)
+        public CompetenceUpdateCommandHandler(ICompetenceRepository competenceRepository, IMapper mapper)
         {
             _competenceRepository = competenceRepository;
             _mapper = mapper;
-            _redisService = redisService;
         }
 
         public async Task<Competence> Handle(CompetenceUpdateCommand request, CancellationToken cancellationToken)
@@ -41,8 +47,6 @@ public class CompetenceUpdateCommand : IRequest<Competence>
             competence.Name = _competence.Name ?? competence.Name;
 
             await _competenceRepository.UpdateAsync(competence, cancellationToken);
-
-            await _redisService.RemoveDataAsync("competences");
 
             return competence;
         }

@@ -2,7 +2,7 @@
 
 namespace ProfiWay.Application.Features.Resumes.Queries.GetById;
 
-public class GetByIdResumeResponseDto
+public class GetResumeByUserIdResponseDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
