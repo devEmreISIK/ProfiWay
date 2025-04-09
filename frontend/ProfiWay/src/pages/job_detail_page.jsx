@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getJobPostingInfo } from "../services/JobPostingService";
-import { getAllCities } from "../services/cityService";
+import { getAllCities } from "../services/CityService";
 import { getAllCompanies } from "../services/CompanyService";
 import { getAllCompetences } from "../services/CompetenceService";
 import { applyToJob } from "../services/ApplicationService";
 import Navbar from "../components/Navbar";
 import { Building2, MapPin, Calendar, CheckCircle2, XCircle, Briefcase, GraduationCap, Clock, FileText } from 'lucide-react';
-import ErrorMessage from "../components/Messages";
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -23,11 +22,11 @@ export default function JobDetail() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jobData, citiesData, companiesData, compData] = await Promise.all([
+        const [jobData, citiesData, compData, companiesData] = await Promise.all([
           getJobPostingInfo(user, id),
           getAllCities(user),
-          getAllCompanies(user),
           getAllCompetences(user),
+          getAllCompanies(user),
         ]);
 
         setJob(jobData);
@@ -35,6 +34,9 @@ export default function JobDetail() {
         setCompanies(companiesData);
         setCompetences(compData);
 
+        console.log(jobData); // Burada job.jobPostingCompetences'ı kontrol edin
+
+        
         const appliedIds = jobData.applications.map((a) => a.id);
         setHasApplied(appliedIds.length > 0);
       } catch (error) {

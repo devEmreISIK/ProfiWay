@@ -20,7 +20,7 @@ public class GetListJobPostingsQuery : IRequest<PaginatedListDto<GetListJobPosti
     public string? Search { get; set; }
     public int? Location { get; set; }
     public int? Skill { get; set; }
-    public string? CacheKey => $"paginated_jobpostings({Index}, {Size}, {Search}, {Location}, {Skill})";
+    public string? CacheKey => $"JobPostings:paginated_jobpostings({Index}, {Size}, {Search}, {Location}, {Skill})";
     public bool BypassCache => false;
     public string? CacheGroupKey => JobPostingConstants.JobPostingsCacheGroup;
     public TimeSpan? SlidingExpiration => null;

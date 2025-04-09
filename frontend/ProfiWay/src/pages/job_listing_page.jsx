@@ -50,29 +50,27 @@ export default function JobListings() {
   const loadJobs = async () => {
     setIsLoading(true);
     try {
-      // getFilteredJobPostings artık { Items: [], TotalCount: ... } döndürüyor
       const result = await getFilteredJobPostings(user, filters);
 
-      // ---> VERİYİ DOĞRU ŞEKİLDE AYARLA <---
       setData({
-        jobs: result.items || [], // Gelen listedeki Items'ı kullan
-        totalCount: result.totalCount || 0, // Gelen listedeki TotalCount'u kullan
+        jobs: result.items || [], 
+        totalCount: result.totalCount || 0, 
       });
 
       console.log("data: ",data)
 
-    } catch (error) { // Hata durumunu da ele al
+    } catch (error) { 
        console.error("İlanlar yüklenirken hata:", error);
-       setData({ jobs: [], totalCount: 0 }); // Hata durumunda state'i sıfırla
+       setData({ jobs: [], totalCount: 0 }); 
     } finally {
       setIsLoading(false);
     }
   };
-  // user varsa ve filtreler hazırsa yükle (isteğe bağlı kontrol)
+  
   if (user) {
      loadJobs();
   }
-}, [filters, user]); // Bağımlılıklar doğru
+}, [filters, user]); 
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 0 }));

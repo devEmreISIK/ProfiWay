@@ -58,7 +58,7 @@ public class JobPostingAddCommand : IRequest<JobPosting>, ICacheRemoverRequest, 
                 JobPostingId = jobPosting.Id
             }).ToList();
 
-            await _jobPostingRepository.AddAsync(jobPosting, cancellationToken);
+            await _jobPostingRepository.UpdateAsync(jobPosting, cancellationToken);
 
             return jobPosting;
         }

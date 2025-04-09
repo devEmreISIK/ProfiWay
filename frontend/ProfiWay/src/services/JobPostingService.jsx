@@ -49,8 +49,7 @@ export async function getJobPostingInfo(user, jobId) {
         description: response.data.description || "",
         companyId: response.data.companyId || "",
         cityId: response.data.cityId || "",
-        jobPostingCompetences: response.data.jobPostingCompetences.$values || [],
-        //applications: job.applications || [], // Varsayılan olarak boş dizi verelim
+        jobPostingCompetences: response.data.jobPostingCompetences || [],
       };
     }
   } catch (error) {
@@ -92,7 +91,7 @@ export async function updateJobPosting(user, jobData) {
         description: jobData.description,
         companyId: jobData.companyId,
         cityId: jobData.cityId,
-        competenceIds: jobData.competenceIds || [], // Eğer boş olabilir diyorsan
+        competenceIds: jobData.competenceIds || [],
       },
       {
         headers: { Authorization: `Bearer ${user.token}` },
@@ -111,7 +110,7 @@ export async function deleteJobPosting(user, jobId) {
   try {
     const response = await axios.delete(`${API_URL}/api/JobPostings/delete`, {
       headers: { Authorization: `Bearer ${user.token}` },
-      data: { id: jobId }, // API'nin beklediği format
+      data: { id: jobId }, 
     });
 
     return response.status === 200;

@@ -20,7 +20,7 @@ public class JobPostingUpdateCommand : IRequest<JobPosting>, ICacheRemoverReques
     public int CityId { get; set; }
     public List<int> CompetenceIds { get; set; }
 
-    public string[] Roles => ["Company", "Admin"];
+    public string[] Roles => ["Company"];
 
     public string? CacheKey => null;
 

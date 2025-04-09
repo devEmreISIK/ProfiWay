@@ -16,9 +16,10 @@ function LoginPage() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+      const message = err.response?.data?.message || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+      setError(message);
     }
-  };
+  };  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-300 to-purple-700">

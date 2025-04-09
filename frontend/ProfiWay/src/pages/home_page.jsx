@@ -1,7 +1,9 @@
 import { Search, GraduationCap, Briefcase, TrendingUp, Building2, Users, ChevronDown, Rocket, Target, Award } from 'lucide-react';
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
+  const navigate = useNavigate();
     useEffect(() => {
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -76,7 +78,7 @@ export default function HomePage() {
                     className="w-full focus:outline-none"
                   />
                 </div>
-                <button className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <button onClick={() => {navigate("/login")}} className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                   Ara
                 </button>
               </div>
@@ -145,14 +147,14 @@ export default function HomePage() {
                       </p>
                       <p className="text-gray-600">Yeni Mezun • Tam Zamanlı</p>
                     </div>
-                    <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    <button onClick={() => {navigate("/login")}} className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
                       Başvur
                     </button>
                   </div>
                 ))}
               </div>
               <div className="text-center mt-12">
-                <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                <button onClick={() => {navigate("/login")}} className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
                   Tüm İşleri Gör
                 </button>
               </div>

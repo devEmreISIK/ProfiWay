@@ -13,7 +13,7 @@ public class GetByCompanyIdJobPostingsQuery : IRequest<List<GetByCompanyIdJobPos
 {
     public int CompanyId { get; set; }
 
-    public string? CacheKey => $"GetJobPostingsByCompanyId({CompanyId})";
+    public string? CacheKey => $"JobPostings:GetJobPostingsByCompanyId({CompanyId})";
 
     public bool BypassCache => false;
 

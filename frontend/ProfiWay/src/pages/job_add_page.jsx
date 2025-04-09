@@ -8,6 +8,7 @@ import { getAllCities } from "../services/CityService";
 import { getAllCompetences } from "../services/CompetenceService";
 import Select from "react-select";
 import { addJobPosting } from "../services/JobPostingService";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 
 const JobPostingForm = () => {
@@ -27,6 +28,7 @@ const JobPostingForm = () => {
 
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -98,6 +100,7 @@ const JobPostingForm = () => {
     const newErrors = validateForm();
   
     if (Object.keys(newErrors).length === 0) {
+      setIsLoading(true);
       try {
         const jobData = {
           title: formData.title,
@@ -112,20 +115,21 @@ const JobPostingForm = () => {
         alert("İş ilanı başarıyla eklendi!");
         //navigate("/dashboard"); // İş ilanları listesine yönlendirme
   
-        // Form sıfırlama
-        setFormData({
-          title: "",
-          description: "",
-          companyId: "",
-          cityId: "",
-          competenceIds: [],
-        });
+        // // Form sıfırlama
+        // setFormData({
+        //   title: "",
+        //   description: "",
+        //   companyId: "",
+        //   cityId: "",
+        //   competenceIds: [],
+        // });
         setSelectedCompetences([]);
         console.log(formData);
 
         setTimeout(() => {
-          navigate("/dashboard", { replace: true });
-        }, 2);
+          alert("İş ilanı başarıyla eklendi!");
+          navigate("/dashboard");
+        }, 3250); 
       } catch (error) {
         alert("İş ilanı eklenirken bir hata oluştu.");
       }
@@ -134,7 +138,9 @@ const JobPostingForm = () => {
     }
   };
 
-  return (
+  return isLoading ? (
+    <LoadingSpinner />
+  ) : (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <Navbar/>
       <div className="container mx-auto pt-20 px-6 gap-6">
@@ -268,6 +274,7 @@ const JobPostingForm = () => {
       
     </div>
   );
+  
 };
 
 export default JobPostingForm;

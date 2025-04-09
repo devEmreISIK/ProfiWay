@@ -15,7 +15,7 @@ public class GetByIdJobPostingQuery : IRequest<GetByIdJobPostingResponseDto>, IP
 {
     public int Id { get; set; }
 
-    public string? CacheKey => $"GetJobPostingsById({Id})";
+    public string? CacheKey => $"JobPostings:GetJobPostingsById({Id})";
 
     public bool BypassCache => false;
 

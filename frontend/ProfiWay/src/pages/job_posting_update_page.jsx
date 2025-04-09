@@ -7,6 +7,7 @@ import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
 import { Briefcase, MapPin, FileText } from "lucide-react";
 import Navbar from "../components/Navbar";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const JobPostingUpdatePage = () => {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ const JobPostingUpdatePage = () => {
   const [competences, setCompetences] = useState([]);
   const [selectedCompetences, setSelectedCompetences] = useState([]);
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,10 +91,11 @@ const JobPostingUpdatePage = () => {
   };
 
   const handleSubmit = async (e) => {
-    //e.preventDefault();
+    e.preventDefault(); // form reload olmasın
     const newErrors = validateForm();
-
+  
     if (Object.keys(newErrors).length === 0) {
+      setIsLoading(true); // loading başlasın
       try {
         const jobData = {
           id: jobPostingId,
@@ -101,23 +104,30 @@ const JobPostingUpdatePage = () => {
           cityId: Number(formData.cityId),
           competenceIds: selectedCompetences.map((comp) => Number(comp.value)),
         };
-        await updateJobPosting(user, jobData);  
-
-        alert("İş ilanı başarıyla güncellendi!");
-        navigate("/dashboard");  
+  
+        await updateJobPosting(user, jobData);
+  
+        setTimeout(() => {
+          alert("İş ilanı başarıyla güncellendi!");
+          navigate("/dashboard");
+        }, 3250); 
       } catch (error) {
         alert("İş ilanı güncellenirken bir hata oluştu.");
+        setIsLoading(false);
       }
     } else {
       setErrors(newErrors);
     }
   };
+  
 
   const handleGoBack = () => {
     navigate(-1); 
   };
 
-  return (
+  return isLoading ? (
+    <LoadingSpinner />
+  ) :  (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <Navbar/>
       <div className="container mx-auto pt-20 px-45 pb-15">
